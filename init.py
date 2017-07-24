@@ -30,7 +30,6 @@ atom_info=inp_file[first_line:last_line]
 atom_info_split=[]
 
 #Define arreglos para tipos, coordenadas, cargas y nombres, y los asigna
-
 atom_types=[]
 atom_coor=np.zeros((N_atoms,3))
 atom_charge=np.zeros(N_atoms)
@@ -46,14 +45,33 @@ for i in range(N_atoms):
     atom_name.append(atom_info_split[i][5])
     atom_charge[i]=atom_info_split[i][-1]
 
-names = open('names.txt', "a")
-coords = open('coords.txt', "a")
-types = open('types.txt', "a")
-charges = open('charges.txt', "a")
+#Centra coordenadas en cero. Tambien escribe constantes a archivo
+cell_length=0.0
+
+constants=open('constants.outpy', 'a')
+for i in range(3):
+    atom_coor[:,i]=atom_coor[:,i]-atom_coor[:,i].mean()
+    var_max=atom_coor[:,i].max()
+    var_min=atom_coor[:,i].min()
+    constants.write(str(var_min)+ " " + str(var_max) + "\n")
+    try_length=var_max-var_min
+    if try_length > cell_length:
+        cell_length=try_length
+
+#atom_coor=atom_coor*10/cell_length
+
+constants.write(str(cell_length)+ " empty \n")
+constants.close()
+
+#Escribe archivos con nombres, tipos, coordenadas y cargas
+names = open('names.outpy', "a")
+coords = open('coords.outpy', "a")
+types = open('types.outpy', "a")
+charges = open('charges.outpy', "a")
 
 for i in range(N_atoms):
     types.write(atom_types[i]+'\n')
-    coords.write(str(atom_coor[i,0]) + '\t' + str(atom_coor[i,1]) + '\t' + str(atom_coor[i,2])+'\n')
+    coords.write(str(atom_coor[i,0]) + ' ' + str(atom_coor[i,1]) + ' ' + str(atom_coor[i,2])+'\n')
     names.write(atom_name[i]+'\n')
     charges.write(str(atom_charge[i])+'\n')
 
