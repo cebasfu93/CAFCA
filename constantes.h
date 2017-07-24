@@ -1,7 +1,7 @@
 #ifndef constantes   /* Include guard */
 #define constantes
 
-#define FLOAT float
+#define FLOAT double
 
 #define Nx 2048
 #define Nv 2048
@@ -16,4 +16,4 @@
 #define skip 15
 #define deltat 0.1
 
-#endif 
+#endif
