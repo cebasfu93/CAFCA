@@ -6,30 +6,23 @@
 #include "funciones.c"
 
 //-------------------------Variables globales-------------------------//
-FLOAT delx=L/(Nx);
-FLOAT delv=V/(Nv);
-FLOAT L_max = L_min+L;
-FLOAT V_max = V_min+V;
-
 int i,j,k, N_atoms, useless;
-int i_v_new, j_x_new;
-FLOAT v, x_new, v_new;
-FLOAT x, y, z, charge;
+FLOAT x, y, z, q;
 
 FILE *coor_file, *names_file, *types_file, *charges_file;
 FLOAT *coorx, *coory, *coorz, *names, *types, *charges;
-FILE *phase_rela_dat, *phase_four_dat, *dens_dat, *acc_dat, *pot_dat, *vels_dat;
-FLOAT *phase, *phase_new, *dens, *acc, *pot, *pot_temp, *vels;
-
-FLOAT Kx;
-FLOAT kx;
-fftw_complex *rho_out, *rho_in, *rho_fin;
-fftw_plan rho_plan;
-
-char *method;
 
 //-------------------------Main-------------------------//
 int main(int argc, char const *argv[]){
+
+  coor_file = fopen("coords.outpy", "r");
+  names_file = fopen("names.outpy", "r");
+  types_file = fopen("types.outpy", "r");
+  charges_file = fopen("charges.outpy", "r");
+  N_atoms=countlines(coor_file);
+  fclose(coor_file);
+  coor_file = fopen("coords.outpy", "r");
+
 
   coorx=malloc(N_atoms*sizeof(FLOAT));
   coory=malloc(N_atoms*sizeof(FLOAT));
@@ -37,23 +30,15 @@ int main(int argc, char const *argv[]){
   charges=malloc(N_atoms*sizeof(FLOAT));
   names=malloc(N_atoms*sizeof(FLOAT));
   types=malloc(N_atoms*sizeof(FLOAT));
-
-
-  coor_file = fopen("coords.outpy", "r");
-  names_file = fopen("names.outpy", "r");
-  types_file = fopen("types.outpy", "r");
-  charges_file = fopen("charges.outpy", "r");
-
-  N_atoms=countlines(coor_file);
-  coor_file = fopen("coords.outpy", "r");
+  check(coorx); check(coory); check(coorz); check(charges);
 
   for(i=0;i<N_atoms;i++){
-    useless=fscanf(coor_file, "%lf %lf %lf", &x, &y, &z);
-    useless=fscanf(charges_file, "%lf", &charge);
+    useless=fscanf(coor_file, "%f %f %f", &x, &y, &z);
+    useless=fscanf(charges_file, "%f", &q);
     coorx[i]=x;
     coory[i]=y;
     coorz[i]=z;
-    charges[i]=charge;
+    charges[i]=q;
   }
 
   fclose(coor_file);
@@ -69,10 +54,10 @@ int main(int argc, char const *argv[]){
 //-------------------------Funciones-------------------------//
 void print_atoms(FLOAT *atom_x, FLOAT *atom_y, FLOAT *atom_z, FLOAT *atom_charges, FLOAT *atom_names, FLOAT *atom_types){
   FILE *atoms_file;
-  atoms_file = fopen("Atomos_c.outc", "w");
+  atoms_file = fopen("atomos.outc", "w");
   fprintf(atoms_file, "Coordenadas (x,y,z) \t carga \t nombre \t tipo \n");
   for(i=0;i<N_atoms;i++){
-    fprintf(atoms_file, "%lf %lf %lf %lf %lf %lf \n", atom_x[i], atom_y[i], atom_z[i], atom_charges[i], atom_names[i], atom_types[i]);
+    fprintf(atoms_file, "%f %f %f %f %f %f \n", atom_x[i], atom_y[i], atom_z[i], atom_charges[i], atom_names[i], atom_types[i]);
   }
   fclose(atoms_file);
 }

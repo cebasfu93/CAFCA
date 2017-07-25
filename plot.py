@@ -3,11 +3,6 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 
 constantes=np.genfromtxt('constants.outpy')
-cell_length=constantes[3,0]
-x_min, x_max = constantes[0,0], constantes[0,1]
-y_min, y_max = constantes[1,0], constantes[1,1]
-z_min, z_max = constantes[2,0], constantes[2,1]
-margin=1.20
 
 #importa info de los atomos
 atoms=np.genfromtxt('Atomos_c.outc', skip_header=1)

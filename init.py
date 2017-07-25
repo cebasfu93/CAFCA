@@ -1,10 +1,7 @@
 #Celular Automata for Fluid Charge Adjustments
+from atom import Atom
 import numpy as np
-import sys
-import os
 import matplotlib.pyplot as plt
-import shutil
-from string import digits
 from optparse import OptionParser
 
 #Opciones del script
@@ -26,56 +23,42 @@ for i in range(len(inp_file)):
         last_line=i
         break
 N_atoms=last_line - first_line
-atom_info=inp_file[first_line:last_line]
-atom_info_split=[]
 
-#Define arreglos para tipos, coordenadas, cargas y nombres, y los asigna
-atom_types=[]
-atom_coor=np.zeros((N_atoms,3))
-atom_charge=np.zeros(N_atoms)
-atom_name=[]
+#Define lista con elementos tipo atomo e inicializa sus atributos
+def init_molecule(input_file):
+    atoms_list=[]
 
-for i in range(N_atoms):
-    atom_info_split.append(atom_info[i].split())
+    atom_info=input_file[first_line:last_line]
+    atom_info_split=[]
+    for i in range(N_atoms):
+        atom_info_split.append(atom_info[i].split())
 
-    atom_types.append(atom_info_split[i][1])
-    atom_coor[i,0]=atom_info_split[i][2]
-    atom_coor[i,1]=atom_info_split[i][3]
-    atom_coor[i,2]=atom_info_split[i][4]
-    atom_name.append(atom_info_split[i][5])
-    atom_charge[i]=atom_info_split[i][-1]
+        name=atom_info_split[i][1]
+        x=atom_info_split[i][2]
+        y=atom_info_split[i][3]
+        z=atom_info_split[i][4]
+        tipo=atom_info_split[i][5]
+        q=atom_info_split[i][-1]
 
-#Centra coordenadas en cero. Tambien escribe constantes a archivo
-cell_length=0.0
-
-constants=open('constants.outpy', 'a')
-for i in range(3):
-    atom_coor[:,i]=atom_coor[:,i]-atom_coor[:,i].mean()
-    var_max=atom_coor[:,i].max()
-    var_min=atom_coor[:,i].min()
-    constants.write(str(var_min)+ " " + str(var_max) + "\n")
-    try_length=var_max-var_min
-    if try_length > cell_length:
-        cell_length=try_length
-
-#atom_coor=atom_coor*10/cell_length
-
-constants.write(str(cell_length)+ " empty \n")
-constants.close()
-
+        atoms_list.append(Atom(x,y,z,q,name,tipo))
+    return atoms_list
 #Escribe archivos con nombres, tipos, coordenadas y cargas
-names = open('names.outpy', "a")
-coords = open('coords.outpy', "a")
-types = open('types.outpy', "a")
-charges = open('charges.outpy', "a")
+def save_molecule(atoms_list):
+    names = open('names.outpy', "a")
+    coords = open('coords.outpy', "a")
+    types = open('types.outpy', "a")
+    charges = open('charges.outpy', "a")
 
-for i in range(N_atoms):
-    types.write(atom_types[i]+'\n')
-    coords.write(str(atom_coor[i,0]) + ' ' + str(atom_coor[i,1]) + ' ' + str(atom_coor[i,2])+'\n')
-    names.write(atom_name[i]+'\n')
-    charges.write(str(atom_charge[i])+'\n')
+    for i in range(N_atoms-1):
+        types.write(atoms_list[i].type+'\n')
+        coords.write(str(atoms_list[i].x) + ' ' + str(atoms_list[i].y) + ' ' + str(atoms_list[i].z)+'\n')
+        names.write(atoms_list[i].name+'\n')
+        charges.write(str(atoms_list[i].q)+'\n')
 
-names.close()
-coords.close()
-types.close()
-charges.close()
+    names.close()
+    coords.close()
+    types.close()
+    charges.close()
+
+molecule=init_molecule(inp_file)
+save_molecule(molecule)

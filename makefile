@@ -1,7 +1,7 @@
-Initial.pdf : Atomos_c.outc plot.py
+Initial.pdf : atomos.outc plot.py
 	python plot.py
 
-Atomos_c.outc : LB3D.x
+atomos.outc : LB3D.x
 	./LB3D.x
 
 LB3D.x : LB3D.c funciones.h funciones.c constantes.h coords.outpy charges.outpy types.outpy names.outpy
@@ -14,6 +14,7 @@ coords.outpy charges.outpy types.outpy names.outpy : init.py
 
 clean:
 	rm -f coords.outpy charges.outpy types.outpy names.outpy constants.outpy
-	rm -f Atomos_c.outc
+	rm -f atom.pyc
+	rm -f atomos.outc
 	rm -f LB3D.x
 	rm -f Initial.pdf
