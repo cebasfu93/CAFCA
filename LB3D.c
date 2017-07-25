@@ -23,6 +23,9 @@ int main(int argc, char const *argv[]){
   fclose(coor_file);
   coor_file = fopen("coords.outpy", "r");
 
+  const char *names[N_atoms];
+  const char *types[N_atoms];
+
 
   coorx=malloc(N_atoms*sizeof(FLOAT));
   coory=malloc(N_atoms*sizeof(FLOAT));
@@ -33,8 +36,8 @@ int main(int argc, char const *argv[]){
   check(coorx); check(coory); check(coorz); check(charges);
 
   for(i=0;i<N_atoms;i++){
-    useless=fscanf(coor_file, "%f %f %f", &x, &y, &z);
-    useless=fscanf(charges_file, "%f", &q);
+    useless=fscanf(coor_file, "%lf %lf %lf", &x, &y, &z);
+    useless=fscanf(charges_file, "%lf", &q);
     coorx[i]=x;
     coory[i]=y;
     coorz[i]=z;
@@ -57,7 +60,7 @@ void print_atoms(FLOAT *atom_x, FLOAT *atom_y, FLOAT *atom_z, FLOAT *atom_charge
   atoms_file = fopen("atomos.outc", "w");
   fprintf(atoms_file, "Coordenadas (x,y,z) \t carga \t nombre \t tipo \n");
   for(i=0;i<N_atoms;i++){
-    fprintf(atoms_file, "%f %f %f %f %f %f \n", atom_x[i], atom_y[i], atom_z[i], atom_charges[i], atom_names[i], atom_types[i]);
+    fprintf(atoms_file, "%lf %lf %lf %lf %lf %lf \n", atom_x[i], atom_y[i], atom_z[i], atom_charges[i], atom_names[i], atom_types[i]);
   }
   fclose(atoms_file);
 }

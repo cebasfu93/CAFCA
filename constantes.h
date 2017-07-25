@@ -1,7 +1,7 @@
 #ifndef constantes   /* Include guard */
 #define constantes
 
-#define FLOAT float
+#define FLOAT double
 
 #define Nx 2048
 #define Nv 2048

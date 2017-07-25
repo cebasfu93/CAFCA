@@ -2,13 +2,8 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 
-constantes=np.genfromtxt('constants.outpy')
-
 #importa info de los atomos
-atoms=np.genfromtxt('Atomos_c.outc', skip_header=1)
-
-#re-escala las coordenadas
-atoms[:,0:3]=atoms[:,0:3]*cell_length
+atoms=np.genfromtxt('atomos.outc', skip_header=1)
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')

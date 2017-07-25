@@ -13,7 +13,7 @@ coords.outpy charges.outpy types.outpy names.outpy : init.py
 	python init.py -i ACT.mol2
 
 clean:
-	rm -f coords.outpy charges.outpy types.outpy names.outpy constants.outpy
+	rm -f coords.outpy charges.outpy types.outpy names.outpy 
 	rm -f atom.pyc
 	rm -f atomos.outc
 	rm -f LB3D.x
