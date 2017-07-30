@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from operator import attrgetter
 from optparse import OptionParser
+import re
 
 #Opciones del script
 parser=OptionParser()
@@ -41,6 +42,7 @@ def init_molecule(input_file):
         atom_info_split.append(atom_info[i].split())
 
         name=atom_info_split[i][1]
+        element=get_element(name)
         x=float(atom_info_split[i][2])
         y=float(atom_info_split[i][3])
         z=float(atom_info_split[i][4])
@@ -50,8 +52,13 @@ def init_molecule(input_file):
         tipo=atom_info_split[i][5]
         q=float(atom_info_split[i][-1])
 
-        atoms_list.append(Atom(x,y,z, vx, vy, vz, q, name, tipo))
+        atoms_list.append(Atom(x,y,z, vx, vy, vz, q, name, tipo, element))
     return atoms_list
+def get_element(nombre):
+    match = re.match(r"([a-zA-Z]+)([0-9]+)", nombre, re.I)
+    if match:
+        items = match.groups()
+    return items[0].title()
 #Escribe archivo con nombres, tipos, coordenadas, velocidades y cargas
 def save_molecule(at_list):
     atomos = open('atomos.outpy', "a")
@@ -62,8 +69,6 @@ def save_molecule(at_list):
     for row in all_at:
         atomos.write("".join(word.ljust(col_width) for word in row) + "\n")
     atomos.close()
-
-
 #Coge el objeto con el atributo minimo de una molecula
 def take_min(atoms_list, atribute):
     return getattr(min(atoms_list, key=attrgetter(atribute)), atribute)
