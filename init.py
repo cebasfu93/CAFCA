@@ -52,26 +52,18 @@ def init_molecule(input_file):
 
         atoms_list.append(Atom(x,y,z, vx, vy, vz, q, name, tipo))
     return atoms_list
-#Escribe archivos con nombres, tipos, coordenadas, velocidades y cargas
-def save_molecule(atoms_list):
-    names = open('names.outpy', "a")
-    coords = open('coords.outpy', "a")
-    speeds = open('speeds.outpy', "a")
-    types = open('types.outpy', "a")
-    charges = open('charges.outpy', "a")
+#Escribe archivo con nombres, tipos, coordenadas, velocidades y cargas
+def save_molecule(at_list):
+    atomos = open('atomos.outpy', "a")
+    all_at=[]
+    for i in range(N_atoms):
+        all_at.append(at_list[i].info)
+    col_width = max(len(word) for row in all_at for word in row) + 2
+    for row in all_at:
+        atomos.write("".join(word.ljust(col_width) for word in row) + "\n")
+    atomos.close()
 
-    for i in range(N_atoms-1):
-        types.write(atoms_list[i].type+'\n')
-        coords.write(str(atoms_list[i].x) + ' ' + str(atoms_list[i].y) + ' ' + str(atoms_list[i].z)+'\n')
-        speeds.write(str(atoms_list[i].vx) + ' ' + str(atoms_list[i].vy) + ' ' + str(atoms_list[i].vz)+'\n')
-        names.write(atoms_list[i].name+'\n')
-        charges.write(str(atoms_list[i].q)+'\n')
 
-    names.close()
-    coords.close()
-    speeds.close()
-    types.close()
-    charges.close()
 #Coge el objeto con el atributo minimo de una molecula
 def take_min(atoms_list, atribute):
     return getattr(min(atoms_list, key=attrgetter(atribute)), atribute)
