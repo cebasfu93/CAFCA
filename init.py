@@ -91,6 +91,7 @@ def save_cons(atoms_list):
     cons.write(str(Vy_min) + ' ' + str(Vy_max) + '\n')
     cons.write(str(Vz_min) + ' ' + str(Vz_max) + '\n')
     cons.write(str(N_res) + '\n')
+    cons.write(str(N_atoms) + '\n')
     cons.write(str(q_fund) + '\n')
     cons.close()
 

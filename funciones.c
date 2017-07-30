@@ -20,16 +20,3 @@ FLOAT sinc(FLOAT x){
   }
   return sin(x)/x;
 }
-int countlines(FILE *fp){
-  int ch=0;
-  int lines=0;
-    while(!feof(fp))
-  {
-    ch = fgetc(fp);
-    if(ch == '\n')
-    {
-      lines++;
-    }
-  }
-  return lines;
-}
