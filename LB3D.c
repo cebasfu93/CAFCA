@@ -32,6 +32,7 @@ int main(int argc, char const *argv[]){
   const char *names[N_atoms], *types[N_atoms], *elements[N_atoms];
   char name_temp[5], type_temp[5], el_temp[3];
 
+  fprintf(atoms_testp, "Elemento, nombre, tipo, x, y, z, vx, vy, vz, q \n");
   for(i=0;i<N_atoms;i++){
     useless=fscanf(atoms_file, "%s %s %s %lf %lf %lf %lf %lf %lf %lf", el_temp, name_temp, type_temp, &x_ini, &y_ini, &z_ini, &vx_ini, &vy_ini, &vz_ini, &q_ini);
     x_space[ndx(x_ini, y_ini, z_ini, 'x')]=q_ini;
@@ -39,7 +40,7 @@ int main(int argc, char const *argv[]){
     names[i]=name_temp;
     types[i]=type_temp;
     elements[i]=el_temp;
-    fprintf(atoms_testp, "%s %s %s %lf %lf %lf %lf %lf %lf %lf \n", elements[i], names[i], types[i], x_ini, y_ini, z_ini, vx_ini, vy_ini, vz_ini, q_ini);
+    fprintf(atoms_testp, "%s, %s, %s, %lf, %lf, %lf, %lf, %lf, %lf, %lf \n", elements[i], names[i], types[i], x_ini, y_ini, z_ini, vx_ini, vy_ini, vz_ini, q_ini);
   }
 
   fclose(atoms_testp);

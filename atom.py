@@ -22,7 +22,11 @@ el_names=['H', 'He',
 
 #Define diccionario que le da numero atomico a cada elemento
 atomic_numbers={}
+el_colors={}
 for i in range(len(el_names)):
     atomic_numbers[el_names[i]]=i+1
-
-el_colors={}
+    el_colors[el_names[i]]='c'
+el_colors['H']='w'
+el_colors['O']='r'
+el_colors['N']='b'
+el_colors['Cl']='g'

@@ -1,4 +1,4 @@
-Initial_realq.pdf Initial_velsq.pdf Initial_realv.pdf : atomos.outc plot.py
+Initial_realel.pdf Initial_realq.pdf Initial_velsq.pdf Initial_realv.pdf : atomos.outc plot.py
 	python plot.py
 
 atomos.outc : LB3D.x
@@ -17,4 +17,4 @@ clean:
 	rm -f atom.pyc
 	rm -f atomos.outc
 	rm -f LB3D.x
-	rm -f Initial_realq.pdf Initial_velsq.pdf Initial_realv.pdf
+	rm -f Initial_realq.pdf Initial_velsq.pdf Initial_realv.pdf Initial_realel.pdf
