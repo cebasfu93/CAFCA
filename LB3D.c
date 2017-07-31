@@ -12,12 +12,13 @@ FLOAT Lx_min, Lx_max, Ly_min, Ly_max, Lz_min, Lz_max, Lx, Ly, Lz;
 FLOAT Vx_min, Vx_max, Vy_min, Vy_max, Vz_min, Vz_max, Vx, Vy, Vz;
 FLOAT delx, dely, delz, delvx, delvy, delvz;
 
-FILE *const_file, *atoms_file;
+FILE *const_file, *atoms_file, *atoms_testp;
 FLOAT x_ini, y_ini, z_ini, vx_ini, vy_ini, vz_ini, q_ini;
 FLOAT *x_space, *v_space;
 
 //-------------------------Main-------------------------//
 int main(int argc, char const *argv[]){
+  atoms_testp=fopen("atomos.outc", "w");
 
   const_file = fopen("constants.outpy", "r");
   assign_cons(const_file);
@@ -33,23 +34,15 @@ int main(int argc, char const *argv[]){
 
   for(i=0;i<N_atoms;i++){
     useless=fscanf(atoms_file, "%s %s %s %lf %lf %lf %lf %lf %lf %lf", el_temp, name_temp, type_temp, &x_ini, &y_ini, &z_ini, &vx_ini, &vy_ini, &vz_ini, &q_ini);
-    //useless=fscanf(speeds_file, "%lf %lf %lf", &vx_ini, &vy_ini, &vz_ini);
-    //useless=fscanf(charges_file, "%lf", &q_ini);
     x_space[ndx(x_ini, y_ini, z_ini, 'x')]=q_ini;
     v_space[ndx(vx_ini, vy_ini, vz_ini, 'v')]=q_ini;
     names[i]=name_temp;
     types[i]=type_temp;
     elements[i]=el_temp;
-    printf("%s %s %s %lf %lf %lf \n", elements[i], names[i], types[i], x_ini, vx_ini, q_ini);
+    fprintf(atoms_testp, "%s %s %s %lf %lf %lf %lf %lf %lf %lf \n", elements[i], names[i], types[i], x_ini, y_ini, z_ini, vx_ini, vy_ini, vz_ini, q_ini);
   }
-/*
-  for(i=0;i<N_atoms;i++){
-    useless=fscanf(names_file, "%s", name_temp);
-    useless=fscanf(types_file, "%s", type_temp);
-    names[i]=name_temp;
-    types[i]=type_temp;
-  }*/
 
+  fclose(atoms_testp);
   fclose(atoms_file);
 
   //print_atoms(coorx, coory, coorz, velx, vely, velz, charges, names, types);
