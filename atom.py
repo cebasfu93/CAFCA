@@ -25,16 +25,16 @@ el_colors['Cl']='g'
 
 #Crea clase atomo con toda la info de un atomo
 class Atom:
-    def __init__(self, x , y, z, vx, vy, vz, q, name, tipo, el):
+    def __init__(self, x , y, z, vx, vy, vz, name, tipo, el):
+        self.name = name
+        self.type = tipo
+        self.el = el
         self.x = x
         self.y = y
         self.z = z
         self.vx = vx
         self.vy = vy
         self.vz = vz
-        self.q = q
-        self.name = name
-        self.type = tipo
-        self.el = el
+        self.q = atomic_numbers[self.el]
         self.rvdw=vdw_radii[self.el]
         self.info = map(str,[self.el, self.name, self.type, self.x, self.y, self.z, self.vx, self.vy, self.vz, self.q, self.rvdw])

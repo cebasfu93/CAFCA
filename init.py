@@ -52,9 +52,8 @@ def init_molecule(input_file):
         vy=float(0.0)
         vz=float(0.0)
         tipo=atom_info_split[i][5]
-        q=float(atom_info_split[i][-1])
 
-        atoms_list.append(Atom(x,y,z, vx, vy, vz, q, name, tipo, element))
+        atoms_list.append(Atom(x,y,z, vx, vy, vz, name, tipo, element))
     return atoms_list
 def get_element(nombre):
     match = re.match(r"([a-zA-Z]+)([0-9]+)", nombre, re.I)
