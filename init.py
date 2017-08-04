@@ -12,7 +12,8 @@ parser=OptionParser()
 parser.add_option("-i","--input", action="store", type="string", dest="InputFile", help="Path of the .mol2 input file.")
 parser.add_option("-L","--realdistance", action="store", type="float", dest="Distance", default=5.0, help="Real-space distance from atoms to simulation box (A).")
 parser.add_option("-V","--veldistance", action="store", type="float", dest="Distancev", default=5.0, help="Velocity distance from atoms to simulation box (A/ps).")
-parser.add_option("-N","--resolution", action="store", type="int", dest="Resolution", default=512, help="Resolution of the phase space (pixels)")
+parser.add_option("-l","--dx", action="store", type="float", dest="Dx", default=0.1, help="Resolution of the real space (A)")
+parser.add_option("-v","--dv", action="store", type="float", dest="Dv", default=0.1, help="Resolution of the velocity space (A/ps)")
 
 
 (options, args) = parser.parse_args()
@@ -20,7 +21,8 @@ parser.add_option("-N","--resolution", action="store", type="int", dest="Resolut
 inp_name=options.InputFile
 distx=options.Distance
 distv=options.Distancev
-N_res=options.Resolution
+dx=options.Dx
+dv=options.Dv
 
 #importa la informacion de los atomos en el .mol2
 inp_file=np.genfromtxt(inp_name, delimiter='\n', dtype='string')
@@ -94,7 +96,7 @@ def save_cons(atoms_list):
     cons.write(str(Vx_min) + ' ' + str(Vx_max) + '\n')
     cons.write(str(Vy_min) + ' ' + str(Vy_max) + '\n')
     cons.write(str(Vz_min) + ' ' + str(Vz_max) + '\n')
-    cons.write(str(N_res) + '\n')
+    cons.write(str(dx) + ' ' + str(dv) + '\n')
     cons.write(str(N_atoms) + '\n')
     cons.close()
 
