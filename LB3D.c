@@ -14,7 +14,7 @@ FLOAT delx, delv, dV;
 
 FILE *atoms_file, *atoms_testp;
 FLOAT x_ini, y_ini, z_ini, vx_ini, vy_ini, vz_ini, q_ini;
-FLOAT *x_space, *v_space, *vdw_radii, *qpercube;
+FLOAT *xs, *ys, *zs, *vxs, *vys, *vzs, *qs, *qpercube;
 int *N_elec;
 
 char name_temp[5], type_temp[5], el_temp[3];
@@ -26,6 +26,7 @@ int main(int argc, char const *argv[]){
   calc_qpercube();
   calc_Nbod();
 
+  init_molecule();
   atoms_file = fopen("atomos.outpy", "r");
 
   /*const char *names[N_atoms], *types[N_atoms], *elements[N_atoms];
@@ -57,7 +58,7 @@ void calc_qpercube(){
   for(i=0;i<N_atoms;i++){
     useless=fscanf(atoms_file, "%s %s %s %lf %lf %lf %lf %lf %lf %lf %lf", el_temp, name_temp, type_temp, &x_ini, &y_ini, &z_ini, &vx_ini, &vy_ini, &vz_ini, &q_ini, &rvdw);
     vol=4.0*pi*pow(rvdw,3)/3.0;
-    N_elec[i]=(int) (vol/dV);
+    N_elec[i]=(int) (vol/dV)-1; //-1 por el cubo del nucleo
     qpercube[i]=-q_ini/N_elec[i];
   }
   fclose(atoms_file);
@@ -67,6 +68,23 @@ void calc_Nbod(){
   for(i=0;i<N_atoms;i++){
     Nbod+=N_elec[i];
   }
+}
+void init_molecule(){
+  xs=malloc(sizeof(FLOAT)*(Nbod+N_atoms)); checkfloat(xs); ys=malloc(sizeof(FLOAT)*(Nbod+N_atoms)); checkfloat(ys); zs=malloc(sizeof(FLOAT)*(Nbod+N_atoms)); checkfloat(zs);
+  vxs=malloc(sizeof(FLOAT)*(Nbod+N_atoms)); checkfloat(vxs); vys=malloc(sizeof(FLOAT)*(Nbod+N_atoms)); checkfloat(vys); vzs=malloc(sizeof(FLOAT)*(Nbod+N_atoms)); checkfloat(vzs);
+  qs=malloc(sizeof(FLOAT)*(Nbod+N_atoms)); checkfloat(xs);
+
+  atoms_file = fopen("atomos.outpy", "r");
+  for(i=0;i<N_atoms;i++){
+    useless=fscanf(atoms_file, "%s %s %s %lf %lf %lf %lf %lf %lf %lf %lf", el_temp, name_temp, type_temp, &x_ini, &y_ini, &z_ini, &vx_ini, &vy_ini, &vz_ini, &q_ini, &rvdw);
+    xs[i]=(int) x_ini/delx; ys[i]=(int) y_ini/delx; zs[i]=(int) z_ini/delx;
+    vxs[i]=(int) vx_ini/delv; vys[i]=(int) vy_ini/delv; vzs[i]=(int) vz_ini/delv;
+    qs[i]= q_ini;
+  }
+  for(j=0;j<Nbod;j++){
+    xs[j+N_atoms]
+  }
+  fclose(atoms_file);
 }
 void print_atoms(FLOAT *atom_x, FLOAT *atom_y, FLOAT *atom_z, FLOAT *atom_vx, FLOAT *atom_vy, FLOAT *atom_vz, FLOAT *atom_charges, char **atom_names, char **atom_types){
   FILE *atoms_file;

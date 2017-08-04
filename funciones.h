@@ -15,4 +15,5 @@ void initfloat(FLOAT *arreglo, int size);
 void initint(int *arreglo, int size);
 void calc_qpercube();
 void calc_Nbod();
+void init_molecule();
 #endif
