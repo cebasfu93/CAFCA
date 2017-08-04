@@ -6,30 +6,29 @@
 #include "funciones.c"
 
 //-------------------------Variables globales-------------------------//
-int i,j,k, N_atoms, Nx, Ny, Nz, Nvx, Nvy, Nvz, useless;
+int i,j,k, N_atoms, Nx, Ny, Nz, Nvx, Nvy, Nvz, useless, Nxtot, Nvtot, Nbod;
 FLOAT q_fund, rvdw;
 FLOAT Lx_min, Lx_max, Ly_min, Ly_max, Lz_min, Lz_max, Lx, Ly, Lz;
 FLOAT Vx_min, Vx_max, Vy_min, Vy_max, Vz_min, Vz_max, Vx, Vy, Vz;
-FLOAT delx, delv;
+FLOAT delx, delv, dV;
 
 FILE *atoms_file, *atoms_testp;
 FLOAT x_ini, y_ini, z_ini, vx_ini, vy_ini, vz_ini, q_ini;
-FLOAT *x_space, *v_space, *vdw_radii;
+FLOAT *x_space, *v_space, *vdw_radii, *qpercube;
+int *N_elec;
+
+char name_temp[5], type_temp[5], el_temp[3];
 
 //-------------------------Main-------------------------//
 int main(int argc, char const *argv[]){
 
   assign_cons();
+  calc_qpercube();
+  calc_Nbod();
 
   atoms_file = fopen("atomos.outpy", "r");
 
-  x_space=malloc(Nx*Ny*Nz*sizeof(FLOAT));
-  v_space=malloc(Nvx*Nvy*Nvz*sizeof(FLOAT));
-  vdw_radii=malloc(N_atoms*sizeof(FLOAT));
-  check(x_space); check(v_space);
-  const char *names[N_atoms], *types[N_atoms], *elements[N_atoms];
-  char name_temp[5], type_temp[5], el_temp[3];
-
+  /*const char *names[N_atoms], *types[N_atoms], *elements[N_atoms];
   atoms_testp=fopen("atomos.outc", "w");
   for(i=0;i<N_atoms;i++){
     useless=fscanf(atoms_file, "%s %s %s %lf %lf %lf %lf %lf %lf %lf %lf", el_temp, name_temp, type_temp, &x_ini, &y_ini, &z_ini, &vx_ini, &vy_ini, &vz_ini, &q_ini, &rvdw);
@@ -44,7 +43,7 @@ int main(int argc, char const *argv[]){
   }
 
   fclose(atoms_testp);
-  fclose(atoms_file);
+  fclose(atoms_file);*/
 
   //print_atoms(coorx, coory, coorz, velx, vely, velz, charges, names, types);
 
@@ -52,6 +51,23 @@ int main(int argc, char const *argv[]){
 }
 
 //-------------------------Funciones-------------------------//
+void calc_qpercube(){
+  FLOAT vol;
+  atoms_file = fopen("atomos.outpy", "r");
+  for(i=0;i<N_atoms;i++){
+    useless=fscanf(atoms_file, "%s %s %s %lf %lf %lf %lf %lf %lf %lf %lf", el_temp, name_temp, type_temp, &x_ini, &y_ini, &z_ini, &vx_ini, &vy_ini, &vz_ini, &q_ini, &rvdw);
+    vol=4.0*pi*pow(rvdw,3)/3.0;
+    N_elec[i]=(int) (vol/dV);
+    qpercube[i]=-q_ini/N_elec[i];
+  }
+  fclose(atoms_file);
+}
+void calc_Nbod(){
+  Nbod=0;
+  for(i=0;i<N_atoms;i++){
+    Nbod+=N_elec[i];
+  }
+}
 void print_atoms(FLOAT *atom_x, FLOAT *atom_y, FLOAT *atom_z, FLOAT *atom_vx, FLOAT *atom_vy, FLOAT *atom_vz, FLOAT *atom_charges, char **atom_names, char **atom_types){
   FILE *atoms_file;
   atoms_file = fopen("atomos.outc", "w");
@@ -76,6 +92,10 @@ void assign_cons(){
 
   Nx = (int) ((Lx_max-Lx_min)/delx); Ny = (int) ((Ly_max-Ly_min)/delx); Nz= (int) ((Lz_max-Lz_min)/delx);
   Nvx = (int) ((Vx_max-Vx_min)/delv); Nvy = (int) ((Vy_max-Vy_min)/delv); Nvz= (int) ((Vz_max-Vz_min)/delv);
+  Nxtot=Nx*Ny*Nz; Nvtot=Nvx*Nvy*Nvz;
+  dV=pow(delx, 3);
+  N_elec=malloc(sizeof(int)*N_atoms); initint(N_elec, N_atoms);
+  qpercube=malloc(sizeof(FLOAT)*N_atoms); initfloat(qpercube, N_atoms);
 }
 int coor2ndx(FLOAT coor1, FLOAT coor2, FLOAT coor3, char state){
   int indx, indy, indz;
