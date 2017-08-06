@@ -65,12 +65,12 @@ def take_max(atoms_list, atribute):
 
 #Imprime constantes para el programa
 def save_cons(atoms_list):
-    Lx_min, Lx_max = take_min(atoms_list, 'x')-distx, take_max(atoms_list, 'x')+distx
-    Ly_min, Ly_max = take_min(atoms_list, 'y')-distx, take_max(atoms_list, 'y')+distx
-    Lz_min, Lz_max = take_min(atoms_list, 'z')-distx, take_max(atoms_list, 'z')+distx
-    Vx_min, Vx_max = take_min(atoms_list, 'vx')-distv, take_max(atoms_list, 'vx')+distv
-    Vy_min, Vy_max = take_min(atoms_list, 'vy')-distv, take_max(atoms_list, 'vy')+distv
-    Vz_min, Vz_max = take_min(atoms_list, 'vz')-distv, take_max(atoms_list, 'vz')+distv
+    Lx_min, Lx_max = take_min(atoms_list, 'x')-init.distx, take_max(atoms_list, 'x')+init.distx
+    Ly_min, Ly_max = take_min(atoms_list, 'y')-init.distx, take_max(atoms_list, 'y')+init.distx
+    Lz_min, Lz_max = take_min(atoms_list, 'z')-init.distx, take_max(atoms_list, 'z')+init.distx
+    Vx_min, Vx_max = take_min(atoms_list, 'vx')-init.distv, take_max(atoms_list, 'vx')+init.distv
+    Vy_min, Vy_max = take_min(atoms_list, 'vy')-init.distv, take_max(atoms_list, 'vy')+init.distv
+    Vz_min, Vz_max = take_min(atoms_list, 'vz')-init.distv, take_max(atoms_list, 'vz')+init.distv
     cons=open('constants.outpy', "a")
     cons.write(str(Lx_min) + ' ' + str(Lx_max) + '\n')
     cons.write(str(Ly_min) + ' ' + str(Ly_max) + '\n')
