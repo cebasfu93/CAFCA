@@ -1,4 +1,5 @@
 import numpy as np
+from init import dx
 
 #Define lista con nombres de elementos admitidos y sus radios de van der waals
 el_names=['H', 'He',
@@ -10,10 +11,15 @@ radii=[1.10, 1.43,
 2.77, 2.42, 2.40, 2.26, 2.14, 2.06, 2.05, 1.94,
 3.02, 2.78, 2.62, 2.44, 2.27, 2.23, 2.25, 2.27, 2.25, 2.23, 2.27, 2.24, 2.41, 2.32, 2.25, 2.18, 2.10, 2.07]
 
+#Import archivo con numero de electrones para radios dados
+file_elec=np.genfromtxt('SphericalGrid/N_elec.outpy')
+print file_elec
+
 #Define diccionario que le da numero atomico, radio de vdw y color a cada elemento
 atomic_numbers={}
 el_colors={}
 vdw_radii={}
+N_bod={}
 for i in range(len(el_names)):
     atomic_numbers[el_names[i]]=float(i+1)
     vdw_radii[el_names[i]]=radii[i]
@@ -37,4 +43,5 @@ class Atom:
         self.vz = vz
         self.q = atomic_numbers[self.el]
         self.rvdw=vdw_radii[self.el]
-        self.info = map(str,[self.el, self.name, self.type, self.x, self.y, self.z, self.vx, self.vy, self.vz, self.q, self.rvdw])
+        self.N_elec=N_bod[self.el]
+        self.info = map(str,[self.el, self.name, self.type, self.x, self.y, self.z, self.vx, self.vy, self.vz, self.q, self.rvdw, self.N_elec])
