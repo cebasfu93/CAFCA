@@ -11,7 +11,7 @@ int x_ini, y_ini, z_ini, vx_ini, vy_ini, vz_ini, N_ini;
 
 int Lx, Ly, Lz;
 int Vx, Vy, Vz;
-FLOAT dV, q_ini;
+FLOAT dV, q_ini, qpc_ini;
 
 FILE *atoms_file, *atoms_testp;
 FLOAT *qpercube;
@@ -54,10 +54,10 @@ int main(int argc, char const *argv[]){
 void calc_qpercube(){
   atoms_file = fopen("atomos.outpy", "r");
   for(i=0;i<N_atoms;i++){
-    useless=fscanf(atoms_file, "%s %s %s %d %d %d %d %d %d %lf %d %d", el_temp, name_temp, type_temp, &x_ini, &y_ini, &z_ini, &vx_ini, &vy_ini, &vz_ini, &q_ini, &rvdw, &N_ini);
+    useless=fscanf(atoms_file, "%s %s %s %d %d %d %d %d %d %lf %d %d %lf", el_temp, name_temp, type_temp, &x_ini, &y_ini, &z_ini, &vx_ini, &vy_ini, &vz_ini, &q_ini, &rvdw, &N_ini, &qpc_ini);
     N_elec[i]=N_ini;
-    qpercube[i]=-q_ini/N_elec[i];
-    printf("%f \n", qpercube[i]);
+    qpercube[i]=qpc_ini;
+    printf("%lf, %d \n", qpercube[i], N_elec[i]);
   }
   fclose(atoms_file);
 }
