@@ -14,7 +14,7 @@ for i in range(len(inp_file)):
         break
 N_atoms=last_line - first_line
 
-Lx_max, Ly_max, Lz_max, Vx_max, Vy_max, Vz_max = 0, 0, 0, 0, 0, 0
+Lx, Ly, Lz, Vx, Vy, Vz = 0, 0, 0, 0, 0, 0
 
 #Convierte coordenadas a enteros poniendo el minimo en cero
 def int_coordinates(at_info_split):
@@ -24,15 +24,15 @@ def int_coordinates(at_info_split):
         min_temp=np.min(temp_array[:,i])
         temp_array[:,i]=temp_array[:,i]-(min_temp-init.distx)
 
-    global Lx_max
-    global Ly_max
-    global Lz_max
-    global Vx_max
-    global Vy_max
-    global Vz_max
+    global Lx
+    global Ly
+    global Lz
+    global Vx
+    global Vy
+    global Vz
 
-    Lx_max, Ly_max, Lz_max=int(np.round(np.max((temp_array[:,0])+init.distx)/init.dx,0)), int(np.round(np.max((temp_array[:,1])+init.distx)/init.dx,0)), int(np.round(np.max((temp_array[:,2])+init.distx)/init.dx,0))
-    Vx_max, Vy_max, Vz_max = int(round(2*init.distv,0)), int(round(2*init.distv,0)), int(round(2*init.distv,0))
+    Lx, Ly, Lz =int(np.round(np.max((temp_array[:,0])+init.distx)/init.dx,0)), int(np.round(np.max((temp_array[:,1])+init.distx)/init.dx,0)), int(np.round(np.max((temp_array[:,2])+init.distx)/init.dx,0))
+    Vx, Vy, Vz = int(round(2*init.distv,0)), int(round(2*init.distv,0)), int(round(2*init.distv,0))
 
     temp_array=np.round(temp_array/init.dx,0).astype(int)
 
@@ -84,13 +84,12 @@ def save_molecule(at_list):
 #Imprime constantes para el programa
 def save_cons():
     cons=open('constants.outpy', "w")
-    cons.write(str(Lx_max) + '\n')
-    cons.write(str(Ly_max) + '\n')
-    cons.write(str(Lz_max) + '\n')
-    cons.write(str(Vx_max) + '\n')
-    cons.write(str(Vy_max) + '\n')
-    cons.write(str(Vz_max) + '\n')
-    cons.write(str(init.dx) + ' ' + str(init.dv) + '\n')
+    cons.write(str(Lx) + '\n')
+    cons.write(str(Ly) + '\n')
+    cons.write(str(Lz) + '\n')
+    cons.write(str(Vx) + '\n')
+    cons.write(str(Vy) + '\n')
+    cons.write(str(Vz) + '\n')
     cons.write(str(N_atoms) + '\n')
     cons.close()
 

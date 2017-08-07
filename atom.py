@@ -46,4 +46,5 @@ class Atom:
         self.q = atomic_numbers[self.el]
         self.rvdw=vdw_radii[self.el]
         self.N_elec=N_bod[self.el]
-        self.info = map(str,[self.el, self.name, self.type, self.x, self.y, self.z, self.vx, self.vy, self.vz, self.q, self.rvdw, self.N_elec])
+        self.qpercube=-round(self.q/self.N_elec, 8)
+        self.info = map(str,[self.el, self.name, self.type, self.x, self.y, self.z, self.vx, self.vy, self.vz, self.q, self.rvdw, self.N_elec, self.qpercube])
