@@ -1,8 +1,7 @@
 import init
 import numpy as np
-import re
+import re #Para get_element
 import numpy as np
-from operator import attrgetter
 from atom import *
 
 #importa la informacion de los atomos en el .mol2
@@ -15,6 +14,30 @@ for i in range(len(inp_file)):
         break
 N_atoms=last_line - first_line
 
+Lx_max, Ly_max, Lz_max, Vx_max, Vy_max, Vz_max = 0, 0, 0, 0, 0, 0
+
+#Convierte coordenadas a enteros poniendo el minimo en cero
+def int_coordinates(at_info_split):
+    temp_array=np.array(at_info_split, dtype='string')
+    temp_array=temp_array[:,2:5].astype(float)
+    for i in range(3):
+        min_temp=np.min(temp_array[:,i])
+        temp_array[:,i]=temp_array[:,i]-(min_temp-init.distx)
+
+    global Lx_max
+    global Ly_max
+    global Lz_max
+    global Vx_max
+    global Vy_max
+    global Vz_max
+
+    Lx_max, Ly_max, Lz_max=int(np.round(np.max((temp_array[:,0])+init.distx)/init.dx,0)), int(np.round(np.max((temp_array[:,1])+init.distx)/init.dx,0)), int(np.round(np.max((temp_array[:,2])+init.distx)/init.dx,0))
+    Vx_max, Vy_max, Vz_max = int(round(2*init.distv,0)), int(round(2*init.distv,0)), int(round(2*init.distv,0))
+
+    temp_array=np.round(temp_array/init.dx,0).astype(int)
+    
+    return temp_array
+
 #Define lista con elementos tipo atomo e inicializa sus atributos
 def init_molecule(input_file):
     atoms_list=[]
@@ -24,14 +47,17 @@ def init_molecule(input_file):
     for i in range(N_atoms):
         atom_info_split.append(atom_info[i].split())
 
+    integer_coords=int_coordinates(atom_info_split)
+
+    for i in range(N_atoms):
         name=atom_info_split[i][1]
         element=get_element(name)
-        x=float(atom_info_split[i][2])
-        y=float(atom_info_split[i][3])
-        z=float(atom_info_split[i][4])
-        vx=float(0.0)
-        vy=float(0.0)
-        vz=float(0.0)
+        x=integer_coords[i,0]
+        y=integer_coords[i,0]
+        z=integer_coords[i,0]
+        vx=(0)
+        vy=(0)
+        vz=(0)
         tipo=atom_info_split[i][5]
 
         atoms_list.append(Atom(x,y,z, vx, vy, vz, name, tipo, element))
@@ -46,7 +72,7 @@ def get_element(nombre):
 
 #Escribe archivo con nombres, tipos, coordenadas, velocidades y cargas
 def save_molecule(at_list):
-    atomos = open('atomos.outpy', "a")
+    atomos = open('atomos.outpy', "w")
     all_at=[]
     for i in range(N_atoms):
         all_at.append(at_list[i].info)
@@ -55,29 +81,15 @@ def save_molecule(at_list):
         atomos.write("".join(word.ljust(col_width) for word in row) + "\n")
     atomos.close()
 
-#Coge el objeto con el atributo minimo de una molecula
-def take_min(atoms_list, atribute):
-    return getattr(min(atoms_list, key=attrgetter(atribute)), atribute)
-
-#Coge el objeto con el atributo maximo de una molecula
-def take_max(atoms_list, atribute):
-    return getattr(max(atoms_list, key=attrgetter(atribute)), atribute)
-
 #Imprime constantes para el programa
 def save_cons(atoms_list):
-    Lx_min, Lx_max = take_min(atoms_list, 'x')-init.distx, take_max(atoms_list, 'x')+init.distx
-    Ly_min, Ly_max = take_min(atoms_list, 'y')-init.distx, take_max(atoms_list, 'y')+init.distx
-    Lz_min, Lz_max = take_min(atoms_list, 'z')-init.distx, take_max(atoms_list, 'z')+init.distx
-    Vx_min, Vx_max = take_min(atoms_list, 'vx')-init.distv, take_max(atoms_list, 'vx')+init.distv
-    Vy_min, Vy_max = take_min(atoms_list, 'vy')-init.distv, take_max(atoms_list, 'vy')+init.distv
-    Vz_min, Vz_max = take_min(atoms_list, 'vz')-init.distv, take_max(atoms_list, 'vz')+init.distv
-    cons=open('constants.outpy', "a")
-    cons.write(str(Lx_min) + ' ' + str(Lx_max) + '\n')
-    cons.write(str(Ly_min) + ' ' + str(Ly_max) + '\n')
-    cons.write(str(Lz_min) + ' ' + str(Lz_max) + '\n')
-    cons.write(str(Vx_min) + ' ' + str(Vx_max) + '\n')
-    cons.write(str(Vy_min) + ' ' + str(Vy_max) + '\n')
-    cons.write(str(Vz_min) + ' ' + str(Vz_max) + '\n')
+    cons=open('constants.outpy', "w")
+    cons.write(str(Lx_max) + '\n')
+    cons.write(str(Ly_max) + '\n')
+    cons.write(str(Lz_max) + '\n')
+    cons.write(str(Vx_max) + '\n')
+    cons.write(str(Vy_max) + '\n')
+    cons.write(str(Vz_max) + '\n')
     cons.write(str(init.dx) + ' ' + str(init.dv) + '\n')
     cons.write(str(N_atoms) + '\n')
     cons.close()
