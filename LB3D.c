@@ -6,15 +6,15 @@
 #include "funciones.c"
 
 //-------------------------Variables globales-------------------------//
-int i,j,k, N_atoms, Nx, Ny, Nz, Nvx, Nvy, Nvz, useless, Nxtot, Nvtot, rvdw, N_ini;
+int i,j,k, N_atoms, Nx, Ny, Nz, Nvx, Nvy, Nvz, useless, Nxtot, Nvtot, rvdw;
+int x_ini, y_ini, z_ini, vx_ini, vy_ini, vz_ini, N_ini;
 
-FLOAT Lx_min, Lx_max, Ly_min, Ly_max, Lz_min, Lz_max, Lx, Ly, Lz;
-FLOAT Vx_min, Vx_max, Vy_min, Vy_max, Vz_min, Vz_max, Vx, Vy, Vz;
-FLOAT delx, delv, dV;
-FLOAT x_ini, y_ini, z_ini, vx_ini, vy_ini, vz_ini, q_ini;
+int Lx, Ly, Lz;
+int Vx, Vy, Vz;
+FLOAT dV, q_ini;
 
 FILE *atoms_file, *atoms_testp;
-FLOAT *xs, *ys, *zs, *vxs, *vys, *vzs, *qs, *qpercube;
+FLOAT *qpercube;
 int *N_elec;
 
 char name_temp[5], type_temp[5], el_temp[3];
@@ -28,9 +28,6 @@ int main(int argc, char const *argv[]){
   //init_molecule();
   //atoms_file = fopen("atomos.outpy", "r");
 
-  for(i=0;i<N_atoms;i++){
-    printf("%d, %lf \n", N_elec[i], qpercube[i]);
-  }
   /*const char *names[N_atoms], *types[N_atoms], *elements[N_atoms];
   atoms_testp=fopen("atomos.outc", "w");
   for(i=0;i<N_atoms;i++){
@@ -55,11 +52,12 @@ int main(int argc, char const *argv[]){
 
 //-------------------------Funciones-------------------------//
 void calc_qpercube(){
-  FLOAT vol;
   atoms_file = fopen("atomos.outpy", "r");
   for(i=0;i<N_atoms;i++){
-    useless=fscanf(atoms_file, "%s %s %s %lf %lf %lf %lf %lf %lf %lf %d %d", el_temp, name_temp, type_temp, &x_ini, &y_ini, &z_ini, &vx_ini, &vy_ini, &vz_ini, &q_ini, &rvdw, &N_elec[i]);
+    useless=fscanf(atoms_file, "%s %s %s %d %d %d %d %d %d %lf %d %d", el_temp, name_temp, type_temp, &x_ini, &y_ini, &z_ini, &vx_ini, &vy_ini, &vz_ini, &q_ini, &rvdw, &N_ini);
+    N_elec[i]=N_ini;
     qpercube[i]=-q_ini/N_elec[i];
+    printf("%f \n", qpercube[i]);
   }
   fclose(atoms_file);
 }
@@ -90,24 +88,19 @@ void print_atoms(FLOAT *atom_x, FLOAT *atom_y, FLOAT *atom_z, FLOAT *atom_vx, FL
 void assign_cons(){
   FILE *cons_file;
   cons_file = fopen("constants.outpy", "r");
-  useless=fscanf(cons_file, "%lf %lf", &Lx_min, &Lx_max);
-  useless=fscanf(cons_file, "%lf %lf", &Ly_min, &Ly_max);
-  useless=fscanf(cons_file, "%lf %lf", &Lz_min, &Lz_max);
-  useless=fscanf(cons_file, "%lf %lf", &Vx_min, &Vx_max);
-  useless=fscanf(cons_file, "%lf %lf", &Vy_min, &Vy_max);
-  useless=fscanf(cons_file, "%lf %lf", &Vz_min, &Vz_max);
-  useless=fscanf(cons_file, "%lf %lf", &delx, &delv);
+
+  useless=fscanf(cons_file, "%d", &Lx);
+  useless=fscanf(cons_file, "%d", &Ly);
+  useless=fscanf(cons_file, "%d", &Lz);
+  useless=fscanf(cons_file, "%d", &Vx);
+  useless=fscanf(cons_file, "%d", &Vy);
+  useless=fscanf(cons_file, "%d", &Vz);
   useless=fscanf(cons_file, "%d", &N_atoms);
+
   fclose(cons_file);
 
-  Lx=Lx_max-Lx_min; Ly=Ly_max-Ly_min; Lz=Lz_max-Lz_min;
-  Vx=Vx_max-Vx_min; Vy=Vy_max-Vy_min; Vz=Vz_max-Vz_min;
+  Nxtot=Lx*Ly*Lz; Nvtot=Vx*Vy*Vz;
 
-  Nx = (int) (Lx/delx); Ny = (int) (Ly/delx); Nz= (int) (Lz/delx);
-  Nvx = (int) (Vx/delv); Nvy = (int) (Vy/delv); Nvz= (int) (Vz/delv);
-
-  Nxtot=Nx*Ny*Nz; Nvtot=Nvx*Nvy*Nvz;
-  dV=pow(delx, 3);
   N_elec=malloc(sizeof(int)*N_atoms); initint(N_elec, N_atoms);
   qpercube=malloc(sizeof(FLOAT)*N_atoms); initfloat(qpercube, N_atoms);
 }
