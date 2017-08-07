@@ -35,7 +35,7 @@ def int_coordinates(at_info_split):
     Vx_max, Vy_max, Vz_max = int(round(2*init.distv,0)), int(round(2*init.distv,0)), int(round(2*init.distv,0))
 
     temp_array=np.round(temp_array/init.dx,0).astype(int)
-    
+
     return temp_array
 
 #Define lista con elementos tipo atomo e inicializa sus atributos
@@ -53,8 +53,8 @@ def init_molecule(input_file):
         name=atom_info_split[i][1]
         element=get_element(name)
         x=integer_coords[i,0]
-        y=integer_coords[i,0]
-        z=integer_coords[i,0]
+        y=integer_coords[i,1]
+        z=integer_coords[i,2]
         vx=(0)
         vy=(0)
         vz=(0)
@@ -82,7 +82,7 @@ def save_molecule(at_list):
     atomos.close()
 
 #Imprime constantes para el programa
-def save_cons(atoms_list):
+def save_cons():
     cons=open('constants.outpy', "w")
     cons.write(str(Lx_max) + '\n')
     cons.write(str(Ly_max) + '\n')
@@ -96,4 +96,4 @@ def save_cons(atoms_list):
 
 molecule=init_molecule(inp_file)
 save_molecule(molecule)
-save_cons(molecule)
+save_cons()
