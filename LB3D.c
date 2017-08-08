@@ -106,8 +106,7 @@ void init_system(){
       for(j=lim1y;j<lim2y;j++){
         for(k=lim1z;k<lim2z;k++){
           test_rad=norm((x_nuc[l]-i), (y_nuc[l]-j), (z_nuc[l]-k));
-          if(test_rad<=rvdw_nuc[l]){
-            printf("%d \n", index);
+          if(test_rad<=rvdw_nuc[l] && test_rad > 0){
             x_sys[index]=i; y_sys[index]=j; z_sys[index]=k;
             q_sys[index]=qpc_nuc[l];
             index+=1;
@@ -115,6 +114,9 @@ void init_system(){
         }
       }
     }
+  }
+  for(i=0;i<Nsys;i++){
+    printf("%d %d %d %f \n", x_sys[i], y_sys[i], z_sys[i], q_sys[i]);
   }
 }
 void print_atoms(FLOAT *atom_x, FLOAT *atom_y, FLOAT *atom_z, FLOAT *atom_vx, FLOAT *atom_vy, FLOAT *atom_vz, FLOAT *atom_charges, char **atom_names, char **atom_types){
