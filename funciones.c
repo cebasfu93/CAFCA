@@ -28,12 +28,7 @@ void checkint(int *arreglo){
     exit(0);
   }
 }
-FLOAT sinc(FLOAT x){
-  if (x==0){
-    return 1.0;
-  }
-  return sin(x)/x;
-}
+
 void initfloat(FLOAT *arreglo, int size){
   int i;
   for(i=0;i<size;i++){
@@ -53,4 +48,15 @@ void initint(int *arreglo, int size){
   for(i=0;i<size;i++){
     arreglo[i]=0;
   }
+}
+
+FLOAT sinc(FLOAT x){
+  if (x==0){
+    return 1.0;
+  }
+  return sin(x)/x;
+}
+
+FLOAT norm(int x, int y, int z){
+  return pow(pow(x,2)+pow(y,2)+pow(z,2), 0.5);
 }

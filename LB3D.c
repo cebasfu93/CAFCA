@@ -6,7 +6,7 @@
 #include "funciones.c"
 
 //-------------------------Variables globales-------------------------//
-int i,j,k, N_atoms, Nx, Ny, Nz, Nvx, Nvy, Nvz, useless, Nxtot, Nvtot, Nsys;
+int i,j,k,l, N_atoms, Nx, Ny, Nz, Nvx, Nvy, Nvz, useless, Nxtot, Nvtot, Nsys;
 int Lx, Ly, Lz;
 int Vx, Vy, Vz;
 
@@ -89,6 +89,33 @@ void init_system(){
   vz_sys=malloc(sizeof(unsigned int)*Nsys); checkuint(vz_sys); inituint(vz_sys, Nsys);
   q_sys=malloc(sizeof(FLOAT)*Nsys); checkfloat(q_sys); initfloat(q_sys, Nsys);
 
+  for(i=0;i<N_atoms;i++){
+    x_sys[i]=x_nuc[i]; y_sys[i]=y_nuc[i]; z_sys[i]=z_nuc[i];
+    vx_sys[i]=vx_nuc[i]; vy_sys[i]=vy_nuc[i]; vz_sys[i]=vz_nuc[i];
+    q_sys[i]=q_nuc[i];
+  }
+
+  int lim1x, lim2x, lim1y, lim2y, lim1z, lim2z;
+  FLOAT test_rad;
+  int index=N_atoms;
+  for(l=0;l<N_atoms;l++){
+    lim1x=x_nuc[l]-rvdw_nuc[l]-1; lim2x=x_nuc[l]+rvdw_nuc[l]+1;
+    lim1y=y_nuc[l]-rvdw_nuc[l]-1; lim2y=y_nuc[l]+rvdw_nuc[l]+1;
+    lim1z=z_nuc[l]-rvdw_nuc[l]-1; lim2z=z_nuc[l]+rvdw_nuc[l]+1;
+    for(i=lim1x;i<lim2x;i++){
+      for(j=lim1y;j<lim2y;j++){
+        for(k=lim1z;k<lim2z;k++){
+          test_rad=norm((x_nuc[l]-i), (y_nuc[l]-j), (z_nuc[l]-k));
+          if(test_rad<=rvdw_nuc[l]){
+            printf("%d \n", index);
+            x_sys[index]=i; y_sys[index]=j; z_sys[index]=k;
+            q_sys[index]=qpc_nuc[l];
+            index+=1;
+          }
+        }
+      }
+    }
+  }
 }
 void print_atoms(FLOAT *atom_x, FLOAT *atom_y, FLOAT *atom_z, FLOAT *atom_vx, FLOAT *atom_vy, FLOAT *atom_vz, FLOAT *atom_charges, char **atom_names, char **atom_types){
   FILE *atoms_file;

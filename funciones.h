@@ -7,6 +7,7 @@ void checkuint(unsigned int *arreglo);
 void checkcomplex(fftw_complex *arreglo);
 void checkint(int *arreglo);
 FLOAT sinc(FLOAT x);
+FLOAT norm(int x, int y, int z);
 void print_atoms(FLOAT *atom_x, FLOAT *atom_y, FLOAT *atom_z, FLOAT *atom_vx, FLOAT *atom_vy, FLOAT *atom_vz, FLOAT *atom_charges, char **atom_names, char **atom_types);
 int coor2ndx(FLOAT coor1, FLOAT coor2, FLOAT coor3, char state);
 int ndx(int indi, int indj, int indk, char state);
