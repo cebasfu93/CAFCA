@@ -1,7 +1,7 @@
 #ifndef constantes   /* Include guard */
 #define constantes
 
-#define FLOAT double
+#define FLOAT float
 
 #define pi 3.141592654
 #define T 300
