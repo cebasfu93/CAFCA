@@ -18,11 +18,9 @@ def ndx2xyz(ndx):
 
 xs, ys, zs = ndx2xyz(ind)
 
-print max(qs[qs<0.8]), min(qs)
-
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-colors=ax.scatter(xs, ys, zs, c=qs, cmap='seismic', vmin=-0.0007, vmax=0)
+colors=ax.scatter(xs, ys, zs, c=qs, cmap='seismic', vmin=min(qs), vmax=max(qs[qs<0.8]))
 ax.set_xlabel('x')
 ax.set_ylabel('y')
 ax.set_zlabel('z')
