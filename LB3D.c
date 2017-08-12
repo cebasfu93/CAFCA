@@ -18,13 +18,15 @@ unsigned int *x_nuc, *y_nuc, *z_nuc, *vx_nuc, *vy_nuc, *vz_nuc, *rvdw_nuc, *N_el
 FLOAT *q_sys;
 unsigned int *x_sys, *y_sys, *z_sys, *vx_sys, *vy_sys, *vz_sys, *rvdw_sys;
 
+FLOAT *rspace, *vspace;
+
 //-------------------------Main-------------------------//
 int main(int argc, char const *argv[]){
 
   assign_cons();
   init_molecule();
   init_system();
-
+  sys2pos();
   //print_atoms(coorx, coory, coorz, velx, vely, velz, charges, names, types);
 
   return 0;
@@ -47,6 +49,8 @@ void assign_cons(){
   fclose(cons_file);
 
   Nxtot=Lx*Ly*Lz; Nvtot=Vx*Vy*Vz;
+  rspace=malloc(sizeof(FLOAT)*Nxtot); checkfloat(rspace); initfloat(rspace, Nxtot);
+  vspace=malloc(sizeof(FLOAT)*Nvtot); checkfloat(vspace); initfloat(vspace, Nvtot);
 }
 void init_molecule(){
   char name_temp[5], type_temp[5], el_temp[3];
@@ -89,12 +93,14 @@ void init_system(){
   vz_sys=malloc(sizeof(unsigned int)*Nsys); checkuint(vz_sys); inituint(vz_sys, Nsys);
   q_sys=malloc(sizeof(FLOAT)*Nsys); checkfloat(q_sys); initfloat(q_sys, Nsys);
 
+  //Initializes the positions, charges, and velocities of nucleii
   for(i=0;i<N_atoms;i++){
     x_sys[i]=x_nuc[i]; y_sys[i]=y_nuc[i]; z_sys[i]=z_nuc[i];
     vx_sys[i]=vx_nuc[i]; vy_sys[i]=vy_nuc[i]; vz_sys[i]=vz_nuc[i];
     q_sys[i]=q_nuc[i];
   }
 
+  //Initializes, to the same pointer, positions and charges of electrons
   int lim1x, lim2x, lim1y, lim2y, lim1z, lim2z;
   FLOAT test_rad;
   int index=N_atoms;
@@ -115,8 +121,23 @@ void init_system(){
       }
     }
   }
+
+  //Initializes velocities of the electrons
+  for(i=N_atoms;i<Nsys;i++){
+    vx_sys[i]=0; vy_sys[i]=0; vz_sys[i]=0;
+  }
+}
+void sys2pos(){
   for(i=0;i<Nsys;i++){
-    printf("%d %d %d %f \n", x_sys[i], y_sys[i], z_sys[i], q_sys[i]);
+    rspace[ndx(x_sys[i], y_sys[i], z_sys[i])]+=q_sys[i];
+  }
+  for(i=0;i<Nxtot;i++){
+    printf("%d %lf \n", i, rspace[i]);
+  }
+}
+void sys2vel(){
+  for(i=0;i<Nsys;i++){
+    vspace[ndx(vx_sys[i], vy_sys[i], vz_sys[i])]+=q_sys[i];
   }
 }
 void print_atoms(FLOAT *atom_x, FLOAT *atom_y, FLOAT *atom_z, FLOAT *atom_vx, FLOAT *atom_vy, FLOAT *atom_vz, FLOAT *atom_charges, char **atom_names, char **atom_types){
@@ -128,30 +149,9 @@ void print_atoms(FLOAT *atom_x, FLOAT *atom_y, FLOAT *atom_z, FLOAT *atom_vx, FL
   }
   fclose(atoms_file);
 }
-int coor2ndx(FLOAT coor1, FLOAT coor2, FLOAT coor3, char state){
-  int indx, indy, indz;
-  int res;
-  /*if(state=='x'){
-    indx=(int) ((coor1-Lx_min)/delx);
-    indy=(int) ((coor2-Ly_min)/delx);
-    indz=(int) ((coor3-Lz_min)/delx);
-    res=ndx(indx, indy, indz, 'x');
-  }
-  else if(state=='v'){
-    indx=(int) ((coor1-Vx_min)/delv);
-    indy=(int) ((coor2-Vy_min)/delv);
-    indz=(int) ((coor3-Vz_min)/delv);
-    res=ndx(indx, indy, indz, 'v');
-  }*/
-  return res;
+int ndx(int indi, int indj, int indk){
+  return indi + Lx*(indj+Ly*indk);
 }
-int ndx(int indi, int indj, int indk, char state){
-  int res;
-  /*if(state=='x'){
-    res=indi + Nx*(indj+Ny*indk);
-  }
-  else if(state=='v'){
-    res=indi + Nvx*(indj+Nvy*indk);
-  }*/
-  return res;
+int ndv(int indi, int indj, int indk){
+  return indi + Vx*(indj+Vy*indk);
 }
