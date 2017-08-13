@@ -167,8 +167,7 @@ void fstep(){
   for(i=0;i<Nxtot;i++){
     rho_in[i]=rspace[i];
   }
-
-  rho_plan = fftw_plan_dft_3d(Nx, Ny, Nz, rho_in, rho_out, 1, FFTW_ESTIMATE);
+  rho_plan = fftw_plan_dft_3d(Lx, Ly, Lz, rho_in, rho_out, 1, FFTW_ESTIMATE);
   fftw_execute(rho_plan);
   fftw_destroy_plan(rho_plan);
 
@@ -186,7 +185,7 @@ void fstep(){
     }
   }
 
-  rho_plan = fftw_plan_dft_3d(Nx, Ny, Nz, rho_out, pot, -1, FFTW_ESTIMATE);
+  rho_plan = fftw_plan_dft_3d(Lx, Ly, Lz, rho_out, pot, -1, FFTW_ESTIMATE);
   fftw_execute(rho_plan);
   fftw_destroy_plan(rho_plan);
 
