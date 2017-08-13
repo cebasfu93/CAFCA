@@ -20,6 +20,11 @@ unsigned int *x_sys, *y_sys, *z_sys, *vx_sys, *vy_sys, *vz_sys, *rvdw_sys;
 
 FLOAT *rspace, *vspace;
 
+fftw_complex *rho_out, *rho_in, *pot;
+fftw_plan rho_plan;
+FLOAT kx, ky, kz, Kx, Ky, Kz;
+
+
 //-------------------------Main-------------------------//
 int main(int argc, char const *argv[]){
 
@@ -51,6 +56,10 @@ void assign_cons(){
   Nxtot=Lx*Ly*Lz; Nvtot=Vx*Vy*Vz;
   rspace=malloc(sizeof(FLOAT)*Nxtot); checkfloat(rspace); initfloat(rspace, Nxtot);
   vspace=malloc(sizeof(FLOAT)*Nvtot); checkfloat(vspace); initfloat(vspace, Nvtot);
+
+  rho_in=malloc(sizeof(fftw_complex)*Nxtot); checkcomplex(rho_in);
+  rho_out=malloc(sizeof(fftw_complex)*Nxtot); checkcomplex(rho_out);
+  pot=malloc(sizeof(fftw_complex)*Nxtot); checkcomplex(pot);
 }
 void init_molecule(){
   char name_temp[5], type_temp[5], el_temp[3];
@@ -132,13 +141,47 @@ void sys2pos(){
     rspace[ndx(x_sys[i], y_sys[i], z_sys[i])]+=q_sys[i];
   }
   for(i=0;i<Nxtot;i++){
-    printf("%d %lf \n", i, rspace[i]);
+    printf("%lf \n", rspace[i]);
   }
 }
 void sys2vel(){
   for(i=0;i<Nsys;i++){
     vspace[ndx(vx_sys[i], vy_sys[i], vz_sys[i])]+=q_sys[i];
   }
+}
+void fstep(){
+  initcomplex(rho_in, Nxtot); initcomplex(rho_out, Nxtot); initcomplex(pot, Nxtot);
+
+  for(i=0;i<Nxtot;i++){
+    rho_in[i]=rspace[i];
+  }
+
+  rho_plan = fftw_plan_dft_3d(Nx, Ny, Nz, rho_in, rho_out, 1, FFTW_ESTIMATE);
+  fftw_execute(rho_plan);
+  fftw_destroy_plan(rho_plan);
+
+  for(i=0;i<Lx;i++){
+    kx=2*pi/Lx*(FLOAT)i;
+    Kx=kx*sinc(0.5*kx);
+    for(j=0;j<Ly;j++){
+      ky=2*pi/Ly*(FLOAT)j;
+      Ky=ky*sinc(0.5*ky);
+      for(k=0;k<Lz;k++){
+        kz=2*pi/Lz*(FLOAT)k;
+        Kz=kz*sinc(0.5*kz);
+        rho_out[i]=-rho_out[i]/(pow(Kx,2)+pow(Ky,2)+pow(Kz,2));
+      }
+    }
+  }
+
+  rho_plan = fftw_plan_dft_3d(Nx, Ny, Nz, rho_out, pot, -1, FFTW_ESTIMATE);
+  fftw_execute(rho_plan);
+  fftw_destroy_plan(rho_plan);
+
+  for(i=0;i<Nxtot;i++){
+    pot[i]=pot[i]/Nxtot;
+  }
+
 }
 void print_atoms(FLOAT *atom_x, FLOAT *atom_y, FLOAT *atom_z, FLOAT *atom_vx, FLOAT *atom_vy, FLOAT *atom_vz, FLOAT *atom_charges, char **atom_names, char **atom_types){
   FILE *atoms_file;
