@@ -24,17 +24,25 @@ fftw_complex *rho_out, *rho_in, *pot;
 fftw_plan rho_plan;
 FLOAT kx, ky, kz, Kx, Ky, Kz;
 
-FLOAT *accx; *accy; *accz;
+FLOAT *accx, *accy, *accz;
 
 FLOAT dt=1;
 int x_new, y_new, z_new, vx_new, vy_new, vz_new;
+
+int N_steps=10;
 
 //-------------------------Main-------------------------//
 int main(int argc, char const *argv[]){
   assign_cons();
   init_molecule();
   init_system();
-  sys2pos();
+
+  for(i=0;i<N_steps;i++){
+    sys2pos();
+    fstep();
+    acceleration();
+    update();
+  }
   //print_atoms(coorx, coory, coorz, velx, vely, velz, charges, names, types);
 
   return 0;
@@ -147,9 +155,6 @@ void sys2pos(){
   for(i=0;i<Nsys;i++){
     rspace[ndx(x_sys[i], y_sys[i], z_sys[i])]+=q_sys[i];
   }
-  for(i=0;i<Nxtot;i++){
-    printf("%lf \n", rspace[i]);
-  }
 }
 void sys2vel(){
   for(i=0;i<Nsys;i++){
@@ -223,7 +228,7 @@ void acceleration(){
   }
 }
 void update(){
-  
+
   for(i=0;i<Nsys;i++){
     vx_new=vx_sys[i] + (int) dt*accx[ndx(x_sys[i], y_sys[i], z_sys[i])];
     vy_new=vx_sys[i] + (int) dt*accy[ndx(x_sys[i], y_sys[i], z_sys[i])];
