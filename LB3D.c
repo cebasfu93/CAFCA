@@ -37,12 +37,13 @@ int main(int argc, char const *argv[]){
   init_molecule();
   init_system();
 
-  for(i=0;i<N_steps;i++){
-    sys2pos();
-    fstep();
-    acceleration();
-    update();
-  }
+  //for(i=0;i<N_steps;i++){
+  sys2pos();
+  print_rspace();
+  fstep();
+  acceleration();
+  update();
+  //}
   //print_atoms(coorx, coory, coorz, velx, vely, velz, charges, names, types);
 
   return 0;
@@ -280,14 +281,38 @@ void update(){
     vz_sys[i]=vz_new;
   }
 }
-void print_atoms(FLOAT *atom_x, FLOAT *atom_y, FLOAT *atom_z, FLOAT *atom_vx, FLOAT *atom_vy, FLOAT *atom_vz, FLOAT *atom_charges, char **atom_names, char **atom_types){
-  FILE *atoms_file;
-  atoms_file = fopen("atomos.outc", "w");
-  fprintf(atoms_file, "Coordenadas (x,y,z) \t Velocidades (vx, vy, vz) \t carga \t nombre \t tipo \n");
-  for(i=0;i<N_atoms;i++){
-    fprintf(atoms_file, "%f %f %f %f %f %f %f %s %s \n", atom_x[i], atom_y[i], atom_z[i], atom_vx[i], atom_vy[i], atom_vz[i], atom_charges[i], atom_names[i], atom_types[i]);
+void print_rspace(){
+  int count;
+  for(i=1;i<Lx-1;i++){
+    for(j=1;j<Ly-1;j++){
+      for(k=1;k<Lz-1;k++){
+        count=0;
+        if(rspace[ndx(i,j,k)]!=0){
+          if(rspace[ndx(i+1,j,k)]!=0){
+            count+=1;
+          }
+          if(rspace[ndx(i-1,j,k)]!=0){
+            count+=1;
+          }
+          if(rspace[ndx(i,j+1,k)]!=0){
+            count+=1;
+          }
+          if(rspace[ndx(i,j-1,k)]!=0){
+            count+=1;
+          }
+          if(rspace[ndx(i,j,k+1)]!=0){
+            count+=1;
+          }
+          if(rspace[ndx(i,j,k-1)]!=0){
+            count+=1;
+          }
+          if(count<6 && count>0){
+            printf("%d %d %d %f \n", i, j, k, rspace[ndx(i,j,k)]);
+          }
+        }
+      }
+    }
   }
-  fclose(atoms_file);
 }
 int ndx(int indi, int indj, int indk){
   return indi + Lx*(indj+Ly*indk);
