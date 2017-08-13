@@ -27,7 +27,7 @@ FLOAT kx, ky, kz, Kx, Ky, Kz;
 FLOAT *accx; *accy; *accz;
 
 FLOAT dt=1;
-unsigned int x_new, y_new, z_new, vx_new, vy_new, vz_new;
+int x_new, y_new, z_new, vx_new, vy_new, vz_new;
 
 //-------------------------Main-------------------------//
 int main(int argc, char const *argv[]){
@@ -223,15 +223,57 @@ void acceleration(){
   }
 }
 void update(){
+  
   for(i=0;i<Nsys;i++){
+    vx_new=vx_sys[i] + (int) dt*accx[ndx(x_sys[i], y_sys[i], z_sys[i])];
+    vy_new=vx_sys[i] + (int) dt*accy[ndx(x_sys[i], y_sys[i], z_sys[i])];
+    vz_new=vx_sys[i] + (int) dt*accz[ndx(x_sys[i], y_sys[i], z_sys[i])];
 
-    vx_new=vx_sys[i]+ (unsigned int) dt*accx[ndx(x_sys[i], y_sys[i], z_sys[i])];
-    vy_new=vx_sys[i]+ (unsigned int) dt*accy[ndx(x_sys[i], y_sys[i], z_sys[i])];
-    vz_new=vx_sys[i]+ (unsigned int) dt*accz[ndx(x_sys[i], y_sys[i], z_sys[i])];
+    x_new=x_sys[i] + (int) dt*vx_new;
+    y_new=y_sys[i] + (int) dt*vy_new;
+    z_new=z_sys[i] + (int) dt*vz_new;
 
-    x_new=x_sys[i]+ (unsigned int) dt*vx_new;
-    y_new=y_sys[i]+ (unsigned int) dt*vy_new;
-    z_new=z_sys[i]+ (unsigned int) dt*vz_new;
+    if(vx_new<Vx && vx_new >=0){
+      if(x_new < 0){
+        x_new = x_new+Lx-1;
+      }
+      else if(x_new >= Lx){
+        x_new = x_new % Lx;
+      }
+    }
+    else{
+      vx_new=vx_sys[i];
+    }
+
+    if(vy_new<Vy && vy_new >=0){
+      if(y_new < 0){
+        y_new = y_new+Ly-1;
+      }
+      else if(y_new >= Ly){
+        y_new = y_new % Ly;
+      }
+    }
+    else{
+      vy_new=vy_sys[i];
+    }
+
+    if(vz_new<Vx && vz_new >=0){
+      if(z_new < 0){
+        z_new = z_new+Lz-1;
+      }
+      else if(z_new >= Lz){
+        z_new = z_new % Lz;
+      }
+    }
+    else{
+      vz_new=vz_sys[i];
+    }
+    x_sys[i]=x_new;
+    y_sys[i]=y_new;
+    z_sys[i]=z_new;
+    vx_sys[i]=vx_new;
+    vy_sys[i]=vy_new;
+    vz_sys[i]=vz_new;
   }
 }
 void print_atoms(FLOAT *atom_x, FLOAT *atom_y, FLOAT *atom_z, FLOAT *atom_vx, FLOAT *atom_vy, FLOAT *atom_vz, FLOAT *atom_charges, char **atom_names, char **atom_types){
