@@ -38,11 +38,11 @@ int main(int argc, char const *argv[]){
   init_system();
 
   //for(i=0;i<N_steps;i++){
-  sys2pos();
-  print_rspace();
-  fstep();
-  acceleration();
-  update();
+  sys2pos(x_sys, y_sys, z_sys, q_sys);
+  print_rspace(rspace);
+  fstep(rspace);
+  acceleration(pot);
+  update(x_sys, y_sys, z_sys, vx_sys, vy_sys, vz_sys, accx, accy, accz);
   //}
   //print_atoms(coorx, coory, coorz, velx, vely, velz, charges, names, types);
 
@@ -152,21 +152,21 @@ void init_system(){
     vx_sys[i]=0; vy_sys[i]=0; vz_sys[i]=0;
   }
 }
-void sys2pos(){
+void sys2pos(unsigned int *x_sis, unsigned int *y_sis, unsigned int *z_sis, FLOAT *q_sis){
   for(i=0;i<Nsys;i++){
-    rspace[ndx(x_sys[i], y_sys[i], z_sys[i])]+=q_sys[i];
+    rspace[ndx(x_sis[i], y_sis[i], z_sis[i])]+=q_sis[i];
   }
 }
-void sys2vel(){
+void sys2vel(unsigned int *vx_sis, unsigned int *vy_sis, unsigned int *vz_sis, FLOAT *q_sis){
   for(i=0;i<Nsys;i++){
-    vspace[ndx(vx_sys[i], vy_sys[i], vz_sys[i])]+=q_sys[i];
+    vspace[ndx(vx_sis[i], vy_sis[i], vz_sis[i])]+=q_sys[i];
   }
 }
-void fstep(){
+void fstep(FLOAT *real_space){
   initcomplex(rho_in, Nxtot); initcomplex(rho_out, Nxtot); initcomplex(pot, Nxtot);
 
   for(i=0;i<Nxtot;i++){
-    rho_in[i]=rspace[i];
+    rho_in[i]=real_space[i];
   }
   rho_plan = fftw_plan_dft_3d(Lx, Ly, Lz, rho_in, rho_out, 1, FFTW_ESTIMATE);
   fftw_execute(rho_plan);
@@ -195,7 +195,7 @@ void fstep(){
   }
 
 }
-void acceleration(){
+void acceleration(fftw_complex *potential){
   initfloat(accx, Nxtot); initfloat(accy, Nxtot); initfloat(accz, Nxtot);
 
   int i1, j1, k1;
@@ -220,23 +220,23 @@ void acceleration(){
         else{
           k1=k;
         }
-        accx[ndx(i,j,k)]=-(pot[ndx((i+1)%Lx,j,k)]-pot[ndx(i1,j,k)])/2;
-        accy[ndx(i,j,k)]=-(pot[ndx(i,(j+1)%Ly,k)]-pot[ndx(i,j1,k)])/2;
-        accz[ndx(i,j,k)]=-(pot[ndx(i,j,(k+1)%Lz)]-pot[ndx(i,j,k1)])/2;
+        accx[ndx(i,j,k)]=-(potential[ndx((i+1)%Lx,j,k)]-potential[ndx(i1,j,k)])/2;
+        accy[ndx(i,j,k)]=-(potential[ndx(i,(j+1)%Ly,k)]-potential[ndx(i,j1,k)])/2;
+        accz[ndx(i,j,k)]=-(potential[ndx(i,j,(k+1)%Lz)]-potential[ndx(i,j,k1)])/2;
       }
     }
   }
 }
-void update(){
+void update(unsigned int *x_sis, unsigned int *y_sis, unsigned int *z_sis, unsigned int *vx_sis, unsigned int *vy_sis, unsigned int *vz_sis, FLOAT *acex, FLOAT *acey, FLOAT *acez){
 
   for(i=0;i<Nsys;i++){
-    vx_new=vx_sys[i] + (int) dt*accx[ndx(x_sys[i], y_sys[i], z_sys[i])];
-    vy_new=vx_sys[i] + (int) dt*accy[ndx(x_sys[i], y_sys[i], z_sys[i])];
-    vz_new=vx_sys[i] + (int) dt*accz[ndx(x_sys[i], y_sys[i], z_sys[i])];
+    vx_new=vx_sis[i] + (int) dt*acex[ndx(x_sis[i], y_sis[i], z_sis[i])];
+    vy_new=vy_sis[i] + (int) dt*acey[ndx(x_sis[i], y_sis[i], z_sis[i])];
+    vz_new=vz_sis[i] + (int) dt*acez[ndx(x_sis[i], y_sis[i], z_sis[i])];
 
-    x_new=x_sys[i] + (int) dt*vx_new;
-    y_new=y_sys[i] + (int) dt*vy_new;
-    z_new=z_sys[i] + (int) dt*vz_new;
+    x_new=x_sis[i] + (int) dt*vx_new;
+    y_new=y_sis[i] + (int) dt*vy_new;
+    z_new=z_sis[i] + (int) dt*vz_new;
 
     if(vx_new<Vx && vx_new >=0){
       if(x_new < 0){
@@ -247,7 +247,7 @@ void update(){
       }
     }
     else{
-      vx_new=vx_sys[i];
+      vx_new=vx_sis[i];
     }
 
     if(vy_new<Vy && vy_new >=0){
@@ -259,7 +259,7 @@ void update(){
       }
     }
     else{
-      vy_new=vy_sys[i];
+      vy_new=vy_sis[i];
     }
 
     if(vz_new<Vx && vz_new >=0){
@@ -271,43 +271,43 @@ void update(){
       }
     }
     else{
-      vz_new=vz_sys[i];
+      vz_new=vz_sis[i];
     }
-    x_sys[i]=x_new;
-    y_sys[i]=y_new;
-    z_sys[i]=z_new;
-    vx_sys[i]=vx_new;
-    vy_sys[i]=vy_new;
-    vz_sys[i]=vz_new;
+    x_sis[i]=x_new;
+    y_sis[i]=y_new;
+    z_sis[i]=z_new;
+    vx_sis[i]=vx_new;
+    vy_sis[i]=vy_new;
+    vz_sis[i]=vz_new;
   }
 }
-void print_rspace(){
+void print_rspace(FLOAT *real_space){
   int count;
   for(i=1;i<Lx-1;i++){
     for(j=1;j<Ly-1;j++){
       for(k=1;k<Lz-1;k++){
         count=0;
-        if(rspace[ndx(i,j,k)]!=0){
-          if(rspace[ndx(i+1,j,k)]!=0){
+        if(real_space[ndx(i,j,k)]!=0){
+          if(real_space[ndx(i+1,j,k)]!=0){
             count+=1;
           }
-          if(rspace[ndx(i-1,j,k)]!=0){
+          if(real_space[ndx(i-1,j,k)]!=0){
             count+=1;
           }
-          if(rspace[ndx(i,j+1,k)]!=0){
+          if(real_space[ndx(i,j+1,k)]!=0){
             count+=1;
           }
-          if(rspace[ndx(i,j-1,k)]!=0){
+          if(real_space[ndx(i,j-1,k)]!=0){
             count+=1;
           }
-          if(rspace[ndx(i,j,k+1)]!=0){
+          if(real_space[ndx(i,j,k+1)]!=0){
             count+=1;
           }
-          if(rspace[ndx(i,j,k-1)]!=0){
+          if(real_space[ndx(i,j,k-1)]!=0){
             count+=1;
           }
           if(count<6 && count>0){
-            printf("%d %d %d %f \n", i, j, k, rspace[ndx(i,j,k)]);
+            printf("%d %d %d %f \n", i, j, k, real_space[ndx(i,j,k)]);
           }
         }
       }

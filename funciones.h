@@ -14,11 +14,11 @@ void initint(int *arreglo, int size);
 void assign_cons();
 void init_molecule();
 void init_system();
-void sys2pos();
-void sys2vel();
-void fstep();
-void acceleration();
-void update();
+void sys2pos(unsigned int *x_sis, unsigned int *y_sis, unsigned int *z_sis, FLOAT *q_sis);
+void sys2vel(unsigned int *vx_sis, unsigned int *vy_sis, unsigned int *vz_sis, FLOAT *q_sis);
+void fstep(FLOAT *real_space);
+void acceleration(fftw_complex *potential);
+void update(unsigned int *x_sis, unsigned int *y_sis, unsigned int *z_sis, unsigned int *vx_sis, unsigned int *vy_sis, unsigned int *vz_sis, FLOAT *acex, FLOAT *acey, FLOAT *acez);
 void print_rspace();
 
 int ndx(int indi, int indj, int indk);
