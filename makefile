@@ -1,8 +1,9 @@
-test.png : atomos.outc plot.py test_plot.py potx.outc poty.outc potz.outc rspace.outc accx.outc accy.outc accz.outc densx.outc densy.outc densz.outc constants.outc
+CAFCA3d.gif CAFCA.gif temp/ temp3d/ : test_plot.py potx.outc poty.outc potz.outc rspace.outc accx.outc accy.outc accz.outc densx.outc densy.outc densz.outc constants.outc
 	#python plot.py
+	rm -rf temp/ temp3d/
 	python test_plot.py
 
-constants.outc rspace.outc densx.outc densy.outc densz.outc accx.outc accy.outc accz.outc potx.outc poty.outc potz.outc atomos.outc : LB3D.x
+constants.outc rspace.outc densx.outc densy.outc densz.outc accx.outc accy.outc accz.outc potx.outc poty.outc potz.outc : LB3D.x
 	./LB3D.x
 
 LB3D.x : LB3D.c funciones.h funciones.c constantes.h atomos.outpy constants.outpy
@@ -19,4 +20,5 @@ clean:
 	rm -f atom.pyc init.pyc
 	rm -f atomos.outc potx.outc poty.outc potz.outc accx.outc accy.outc accz.outc densx.outc densy.outc densz.outc rspace.outc constants.outc
 	rm -f LB3D.x
-	rm -f test.png
+	rm -f CAFCA.gif CAFCA3d.gif
+	rm -rf temp/ temp3d/

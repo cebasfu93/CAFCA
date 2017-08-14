@@ -31,7 +31,6 @@ n1, n2 = 0,0
 x,y,z= np.linspace(0,Lx-1,Lx), np.linspace(0,Ly-1,Ly), np.linspace(0,Lz-1,Lz)
 
 os.mkdir("temp")
-
 with imageio.get_writer('./CAFCA.gif', mode='I') as writer:
     for i in range(N_steps):
         n1=n2
@@ -125,6 +124,7 @@ with imageio.get_writer('./CAFCA.gif', mode='I') as writer:
         ax7.set_aspect('equal')
         cbar=fig.colorbar(colors)
         cbar.ax.tick_params(labelsize=Z)
+        cbar.set_label("Charge", fontsize=Z, rotation=270)
 
         gs.update(wspace=0.5, hspace=0.5)
         fig = plt.gcf()
@@ -134,6 +134,35 @@ with imageio.get_writer('./CAFCA.gif', mode='I') as writer:
         image=imageio.imread('./temp/test'+str(i)+'.png')
         writer.append_data(image)
 
+n1, n2=0,0
+os.mkdir("temp3d")
+with imageio.get_writer('./CAFCA3d.gif', mode='I') as writer:
+    for i in range(N_steps):
+        n1=n2
+        n2+=N_points[i+1]
+        nx=rspace[n1:n2,0]
+        ny=rspace[n1:n2,1]
+        nz=rspace[n1:n2,2]
+        qs=rspace[n1:n2,3]
+
+        fig=plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        colors=ax.scatter(nx, ny, nz, c=qs, cmap='seismic', vmin=min(qs), vmax=max(qs[qs<0.8]))
+        ax.set_xlabel('x', fontsize=Z)
+        ax.set_ylabel('y', fontsize=Z)
+        ax.set_zlabel('z', fontsize=Z)
+        #plt.xticks(fontsize=Z)
+        #plt.yticks(fontsize=Z)
+        ax.set_aspect('equal')
+        cbar=fig.colorbar(colors)
+        cbar.ax.tick_params(labelsize=Z-8)
+        cbar.set_label("Charge", fontsize=Z-8, rotation=270)
+
+        plt.savefig('./temp3d/test'+str(i)+'.png', format='png')
+        plt.close()
+
+        image=imageio.imread('./temp3d/test'+str(i)+'.png')
+        writer.append_data(image)
 def ndx2xyz(ndx):
     x = (ndx % (Lx*Ly)) % Lx
     y = (ndx % (Lx*Ly)) // Lx

@@ -24,9 +24,9 @@ FLOAT *pot;
 
 FLOAT *accx, *accy, *accz;
 
-FLOAT dt=1;
+FLOAT dt=10;
 
-int N_steps=5;
+int N_steps=2;
 
 //-------------------------Main-------------------------//
 int main(int argc, char const *argv[]){
