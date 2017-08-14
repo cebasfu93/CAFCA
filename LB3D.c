@@ -313,6 +313,7 @@ void print_rspace(FLOAT *real_space){
   rspace_file=fopen("rspace.outc", "a");
 
   int count;
+  int points=0;
   for(i=1;i<Lx-1;i++){
     for(j=1;j<Ly-1;j++){
       for(k=1;k<Lz-1;k++){
@@ -338,12 +339,20 @@ void print_rspace(FLOAT *real_space){
           }
           if(count<6 && count>0){
             fprintf(rspace_file, "%d %d %d %f \n", i, j, k, real_space[ndx(i,j,k)]);
+            points+=1
           }
         }
       }
     }
   }
+  print_points(points);
   fclose(rspace_file);
+}
+void print_points(int p){
+  FILE *cons_file;
+  cons_file=fopen("constants.outc", "a");
+  fprintf(cons_file, "%d \n", p);
+  fclose(cons_file);
 }
 void print_all_dens(FLOAT *real_space){
   print_dens(real_space, 'x');

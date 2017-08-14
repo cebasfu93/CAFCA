@@ -22,6 +22,7 @@ void update(unsigned int *x_sis, unsigned int *y_sis, unsigned int *z_sis, unsig
 
 void print_cons();
 void print_rspace();
+void print_points(int p);
 void print_pot(FLOAT *potential, char dir);
 void print_all_pot(FLOAT *potential);
 void print_acc(FLOAT *ace, char dir);
