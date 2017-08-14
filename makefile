@@ -1,8 +1,8 @@
-Initial_realel.pdf Initial_realq.pdf Initial_velsq.pdf Initial_realv.pdf : atomos.outc plot.py test_plot.py potx.outc poty.outc potz.outc rspace.outc
+test.png : atomos.outc plot.py test_plot.py potx.outc poty.outc potz.outc rspace.outc accx.outc accy.outc accz.outc densx.outc densy.outc densz.outc constants.outc
 	#python plot.py
 	python test_plot.py
 
-rspace.outc potx.outc poty.outc potz.outc atomos.outc : LB3D.x
+constants.outc rspace.outc densx.outc densy.outc densz.outc accx.outc accy.outc accz.outc potx.outc poty.outc potz.outc atomos.outc : LB3D.x
 	./LB3D.x
 
 LB3D.x : LB3D.c funciones.h funciones.c constantes.h atomos.outpy constants.outpy
@@ -17,6 +17,6 @@ atomos.outpy constants.outpy : init.py atom.py molecule.py
 clean:
 	rm -f atomos.outpy constants.outpy
 	rm -f atom.pyc init.pyc
-	rm -f atomos.outc potx.outc poty.outc potz.outc
+	rm -f atomos.outc potx.outc poty.outc potz.outc accx.outc accy.outc accz.outc densx.outc densy.outc densz.outc rspace.outc constants.outc
 	rm -f LB3D.x
-	rm -f Initial_realq.pdf Initial_velsq.pdf Initial_realv.pdf Initial_realel.pdf
+	rm -f test.png

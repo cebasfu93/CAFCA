@@ -31,6 +31,7 @@ int N_steps=10;
 //-------------------------Main-------------------------//
 int main(int argc, char const *argv[]){
   assign_cons();
+  print_cons();
   init_molecule();
   init_system();
 
@@ -300,6 +301,13 @@ void update(unsigned int *x_sis, unsigned int *y_sis, unsigned int *z_sis, unsig
   }
 }
 
+void print_cons(){
+  FILE *cons_file;
+  cons_file=fopen("constants.outc", "a");
+  fprintf(cons_file, "%d \n %d \n %d \n", Lx, Ly, Lz);
+  fprintf(cons_file, "%d \n", N_steps);
+  fclose(cons_file);
+}
 void print_rspace(FLOAT *real_space){
   FILE *rspace_file;
   rspace_file=fopen("rspace.outc", "a");
