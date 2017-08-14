@@ -6,7 +6,7 @@
 #include "funciones.c"
 
 //-------------------------Variables globales-------------------------//
-int i,j,k,l, N_atoms, Nx, Ny, Nz, Nvx, Nvy, Nvz, useless, Nxtot, Nvtot, Nsys;
+int i,j,k,l, N_atoms, Nx, Ny, Nz, Nvx, Nvy, Nvz, useless, Nxtot, Nvtot, Nsys, gi;
 int Lx, Ly, Lz;
 int Vx, Vy, Vz;
 
@@ -26,7 +26,7 @@ FLOAT *accx, *accy, *accz;
 
 FLOAT dt=1;
 
-int N_steps=10;
+int N_steps=5;
 
 //-------------------------Main-------------------------//
 int main(int argc, char const *argv[]){
@@ -36,15 +36,15 @@ int main(int argc, char const *argv[]){
   init_system();
 
 
-  //for(i=0;i<N_steps;i++){
-  rspace=sys2pos(x_sys, y_sys, z_sys, q_sys);
-  print_rspace(rspace);
-  print_all_dens(rspace);
-  pot = fstep(rspace);
-  print_all_pot(pot);
-  acceleration(pot, accx, accy, accz);
-  print_all_acc(accx, accy, accz);
-  //}
+  for(gi=0;gi<N_steps;gi++){
+    rspace=sys2pos(x_sys, y_sys, z_sys, q_sys);
+    print_rspace(rspace);
+    print_all_dens(rspace);
+    pot = fstep(rspace);
+    print_all_pot(pot);
+    acceleration(pot, accx, accy, accz);
+    print_all_acc(accx, accy, accz);
+  }
 
   return 0;
 }
@@ -304,7 +304,7 @@ void update(unsigned int *x_sis, unsigned int *y_sis, unsigned int *z_sis, unsig
 void print_cons(){
   FILE *cons_file;
   cons_file=fopen("constants.outc", "a");
-  fprintf(cons_file, "%d \n %d \n %d \n", Lx, Ly, Lz);
+  fprintf(cons_file, "%d \n%d \n%d \n", Lx, Ly, Lz);
   fprintf(cons_file, "%d \n", N_steps);
   fclose(cons_file);
 }
@@ -344,6 +344,65 @@ void print_rspace(FLOAT *real_space){
     }
   }
   fclose(rspace_file);
+}
+void print_all_dens(FLOAT *real_space){
+  print_dens(real_space, 'x');
+  print_dens(real_space, 'y');
+  print_dens(real_space, 'z');
+}
+void print_dens(FLOAT *real_space, char dir){
+  FLOAT sum;
+  if(dir=='x'){
+    FILE *densx_file;
+    densx_file=fopen("densx.outc", "a");
+
+    for(i=0;i<Lx;i++){
+      sum=0;
+      for(j=0;j<Ly;j++){
+        for(k=0;k<Lz;k++){
+          sum+=real_space[ndx(i,j,k)];
+        }
+      }
+      fprintf(densx_file, "%f \n", sum);
+    }
+    fclose(densx_file);
+  }
+
+  else if(dir=='y'){
+    FILE *densy_file;
+    densy_file=fopen("densy.outc", "a");
+
+    for(i=0;i<Ly;i++){
+      sum=0;
+      for(j=0;j<Lz;j++){
+        for(k=0;k<Lx;k++){
+          sum+=real_space[ndx(k,i,j)];
+        }
+      }
+      fprintf(densy_file, "%f \n", sum);
+    }
+    fclose(densy_file);
+  }
+
+  else if(dir=='z'){
+    FILE *densz_file;
+    densz_file=fopen("densz.outc", "a");
+
+    for(i=0;i<Lz;i++){
+      sum=0;
+      for(j=0;j<Lx;j++){
+        for(k=0;k<Ly;k++){
+          sum+=real_space[ndx(j,k,i)];
+        }
+      }
+      fprintf(densz_file, "%f \n", sum);
+    }
+    fclose(densz_file);
+  }
+  else{
+    printf("La direccion de la densidad que se quiere imprimir, no es valida \n");
+    exit(0);
+  }
 }
 void print_all_pot(FLOAT *potential){
   print_pot(potential, 'x');
@@ -463,65 +522,7 @@ void print_acc(FLOAT *ace, char dir){
     exit(0);
   }
 }
-void print_all_dens(FLOAT *real_space){
-  print_dens(real_space, 'x');
-  print_dens(real_space, 'y');
-  print_dens(real_space, 'z');
-}
-void print_dens(FLOAT *real_space, char dir){
-  FLOAT sum;
-  if(dir=='x'){
-    FILE *densx_file;
-    densx_file=fopen("densx.outc", "a");
 
-    for(i=0;i<Lx;i++){
-      sum=0;
-      for(j=0;j<Ly;j++){
-        for(k=0;k<Lz;k++){
-          sum+=real_space[ndx(i,j,k)];
-        }
-      }
-      fprintf(densx_file, "%f \n", sum);
-    }
-    fclose(densx_file);
-  }
-
-  else if(dir=='y'){
-    FILE *densy_file;
-    densy_file=fopen("densy.outc", "a");
-
-    for(i=0;i<Ly;i++){
-      sum=0;
-      for(j=0;j<Lz;j++){
-        for(k=0;k<Lx;k++){
-          sum+=real_space[ndx(k,i,j)];
-        }
-      }
-      fprintf(densy_file, "%f \n", sum);
-    }
-    fclose(densy_file);
-  }
-
-  else if(dir=='z'){
-    FILE *densz_file;
-    densz_file=fopen("densz.outc", "a");
-
-    for(i=0;i<Lz;i++){
-      sum=0;
-      for(j=0;j<Lx;j++){
-        for(k=0;k<Ly;k++){
-          sum+=real_space[ndx(j,k,i)];
-        }
-      }
-      fprintf(densz_file, "%f \n", sum);
-    }
-    fclose(densz_file);
-  }
-  else{
-    printf("La direccion de la densidad que se quiere imprimir, no es valida \n");
-    exit(0);
-  }
-}
 
 int ndx(int indi, int indj, int indk){
   return indi + Lx*(indj+Ly*indk);
