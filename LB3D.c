@@ -247,7 +247,7 @@ void acceleration(FLOAT *potential, FLOAT *acex, FLOAT *acey, FLOAT *acez){
 void update(unsigned int *x_sis, unsigned int *y_sis, unsigned int *z_sis, unsigned int *vx_sis, unsigned int *vy_sis, unsigned int *vz_sis, FLOAT *acex, FLOAT *acey, FLOAT *acez){
   int x_new, y_new, z_new, vx_new, vy_new, vz_new;
 
-  for(i=0;i<Nsys;i++){
+  for(i=N_atoms;i<Nsys;i++){
     vx_new=vx_sis[i] + (int) dt*acex[ndx(x_sis[i], y_sis[i], z_sis[i])];
     vy_new=vy_sis[i] + (int) dt*acey[ndx(x_sis[i], y_sis[i], z_sis[i])];
     vz_new=vz_sis[i] + (int) dt*acez[ndx(x_sis[i], y_sis[i], z_sis[i])];
