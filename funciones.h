@@ -16,10 +16,13 @@ void init_molecule();
 void init_system();
 FLOAT *sys2pos(unsigned int *x_sis, unsigned int *y_sis, unsigned int *z_sis, FLOAT *q_sis);
 FLOAT *sys2vel(unsigned int *vx_sis, unsigned int *vy_sis, unsigned int *vz_sis, FLOAT *q_sis);
-fftw_complex *fstep(FLOAT *real_space);
-void acceleration(fftw_complex *potential, FLOAT *acex, FLOAT *acey, FLOAT *acez);
+FLOAT *fstep(FLOAT *real_space);
+void acceleration(FLOAT *potential, FLOAT *acex, FLOAT *acey, FLOAT *acez);
 void update(unsigned int *x_sis, unsigned int *y_sis, unsigned int *z_sis, unsigned int *vx_sis, unsigned int *vy_sis, unsigned int *vz_sis, FLOAT *acex, FLOAT *acey, FLOAT *acez);
+
 void print_rspace();
+void print_pot(FLOAT *potential, char dir);
+void print_all_pot(FLOAT *potential);
 
 int ndx(int indi, int indj, int indk);
 int ndv(int indi, int indj, int indk);

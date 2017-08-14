@@ -20,7 +20,7 @@ unsigned int *x_sys, *y_sys, *z_sys, *vx_sys, *vy_sys, *vz_sys, *rvdw_sys;
 
 FLOAT *rspace, *vspace;
 
-fftw_complex *pot;
+FLOAT *pot;
 
 FLOAT *accx, *accy, *accz;
 
@@ -33,15 +33,22 @@ int main(int argc, char const *argv[]){
   assign_cons();
   init_molecule();
   init_system();
-
-  //for(i=0;i<N_steps;i++){
   rspace=sys2pos(x_sys, y_sys, z_sys, q_sys);
   print_rspace(rspace);
   pot = fstep(rspace);
-  acceleration(pot, accx, accy, accz);
-  update(x_sys, y_sys, z_sys, vx_sys, vy_sys, vz_sys, accx, accy, accz);
-  //}
-  //print_atoms(coorx, coory, coorz, velx, vely, velz, charges, names, types);
+  for(i=0;i<Nxtot;i++){
+    printf("%f \n", pot[i]);
+  }
+
+  print_all_pot(pot);
+
+  /*for(i=0;i<N_steps;i++){
+    rspace=sys2pos(x_sys, y_sys, z_sys, q_sys);
+    print_rspace(rspace);
+    pot = fstep(rspace);
+    acceleration(pot, accx, accy, accz);
+    update(x_sys, y_sys, z_sys, vx_sys, vy_sys, vz_sys, accx, accy, accz);
+  }*/
 
   return 0;
 }
@@ -66,7 +73,7 @@ void assign_cons(){
   rspace=malloc(sizeof(FLOAT)*Nxtot); checkfloat(rspace); initfloat(rspace, Nxtot);
   vspace=malloc(sizeof(FLOAT)*Nvtot); checkfloat(vspace); initfloat(vspace, Nvtot);
 
-  pot=malloc(sizeof(fftw_complex)*Nxtot); checkcomplex(pot);
+  pot=malloc(sizeof(FLOAT)*Nxtot); checkfloat(pot);
 
   accx=malloc(sizeof(FLOAT)*Nxtot); checkfloat(accx);
   accy=malloc(sizeof(FLOAT)*Nxtot); checkfloat(accy);
@@ -165,14 +172,16 @@ FLOAT *sys2vel(unsigned int *vx_sis, unsigned int *vy_sis, unsigned int *vz_sis,
   }
   return vel_space;
 }
-fftw_complex *fstep(FLOAT *real_space){
+FLOAT *fstep(FLOAT *real_space){
   fftw_plan rho_plan;
   FLOAT kx, ky, kz, Kx, Ky, Kz;
-  fftw_complex *potential, *rho_out, *rho_in;
+  fftw_complex *rho_fin, *rho_out, *rho_in;
+  FLOAT *potential;
 
-  potential=malloc(sizeof(fftw_complex)*Nxtot); checkcomplex(potential); initcomplex(potential, Nxtot);
   rho_in=malloc(sizeof(fftw_complex)*Nxtot); checkcomplex(rho_in); initcomplex(rho_in, Nxtot);
   rho_out=malloc(sizeof(fftw_complex)*Nxtot); checkcomplex(rho_out); initcomplex(rho_out, Nxtot);
+  rho_fin=malloc(sizeof(fftw_complex)*Nxtot); checkcomplex(rho_fin); initcomplex(rho_fin, Nxtot);
+  potential=malloc(sizeof(FLOAT)*Nxtot); checkfloat(potential); initfloat(potential, Nxtot);
 
   for(i=0;i<Nxtot;i++){
     rho_in[i]=real_space[i];
@@ -195,17 +204,17 @@ fftw_complex *fstep(FLOAT *real_space){
     }
   }
 
-  rho_plan = fftw_plan_dft_3d(Lx, Ly, Lz, rho_out, potential, -1, FFTW_ESTIMATE);
+  rho_plan = fftw_plan_dft_3d(Lx, Ly, Lz, rho_out, rho_fin, -1, FFTW_ESTIMATE);
   fftw_execute(rho_plan);
   fftw_destroy_plan(rho_plan);
 
   for(i=0;i<Nxtot;i++){
-    potential[i]=potential[i]/Nxtot;
+    potential[i]= (FLOAT) rho_fin[i]/Nxtot;
   }
   return potential;
 
 }
-void acceleration(fftw_complex *potential, FLOAT *acex, FLOAT *acey, FLOAT *acez){
+void acceleration(FLOAT *potential, FLOAT *acex, FLOAT *acey, FLOAT *acez){
   initfloat(acex, Nxtot); initfloat(acey, Nxtot); initfloat(acez, Nxtot);
 
   int i1, j1, k1;
@@ -293,6 +302,9 @@ void update(unsigned int *x_sis, unsigned int *y_sis, unsigned int *z_sis, unsig
   }
 }
 void print_rspace(FLOAT *real_space){
+  FILE *rspace_file;
+  rspace_file=fopen("rspace.outc", "a");
+
   int count;
   for(i=1;i<Lx-1;i++){
     for(j=1;j<Ly-1;j++){
@@ -318,11 +330,77 @@ void print_rspace(FLOAT *real_space){
             count+=1;
           }
           if(count<6 && count>0){
-            printf("%d %d %d %f \n", i, j, k, real_space[ndx(i,j,k)]);
+            fprintf(rspace_file, "%d %d %d %f \n", i, j, k, real_space[ndx(i,j,k)]);
           }
         }
       }
     }
+  }
+  fclose(rspace_file);
+}
+void print_all_pot(FLOAT *potential){
+  print_pot(potential, 'x');
+  print_pot(potential, 'y');
+  print_pot(potential, 'z');
+}
+void print_pot(FLOAT *potential, char dir){
+  FLOAT sum;
+  if(dir=='x'){
+    FILE *potx_file;
+    potx_file=fopen("potx.outc", "a");
+
+    FLOAT *pot_res;
+    pot_res=malloc(sizeof(FLOAT)*Lx); checkfloat(pot_res); initfloat(pot_res, Lx);
+    for(i=0;i<Lx;i++){
+      sum=0;
+      for(j=0;j<Ly;j++){
+        for(k=0;k<Lz;k++){
+          sum+=potential[ndx(i,j,k)];
+        }
+      }
+      fprintf(potx_file, "%f \n", sum);
+    }
+    fclose(potx_file);
+  }
+
+  else if(dir=='y'){
+    FILE *poty_file;
+    poty_file=fopen("poty.outc", "a");
+
+    FLOAT *pot_res;
+    pot_res=malloc(sizeof(FLOAT)*Ly); checkfloat(pot_res); initfloat(pot_res, Ly);
+    for(i=0;i<Ly;i++){
+      sum=0;
+      for(j=0;j<Lz;j++){
+        for(k=0;k<Lx;k++){
+          sum+=potential[ndx(k,i,j)];
+        }
+      }
+      fprintf(poty_file, "%f \n", sum);
+    }
+    fclose(poty_file);
+  }
+
+  else if(dir=='z'){
+    FILE *potz_file;
+    potz_file=fopen("potz.outc", "a");
+
+    FLOAT *pot_res;
+    pot_res=malloc(sizeof(FLOAT)*Lz); checkfloat(pot_res); initfloat(pot_res, Lz);
+    for(i=0;i<Lz;i++){
+      sum=0;
+      for(j=0;j<Lx;j++){
+        for(k=0;k<Ly;k++){
+          sum+=potential[ndx(j,k,i)];
+        }
+      }
+      fprintf(potz_file, "%f \n", sum);
+    }
+    fclose(potz_file);
+  }
+  else{
+    printf("La direccion del potencial que se quiere imprimir, no es valida \n");
+    exit(0);
   }
 }
 int ndx(int indi, int indj, int indk){

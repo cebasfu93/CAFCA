@@ -3,7 +3,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 
 cons=np.genfromtxt('constants.outpy')
-inp=np.genfromtxt('check.outc')
+inp=np.genfromtxt('rspace.outc')
 Lx=cons[0]
 Ly=cons[1]
 Lz=cons[2]
