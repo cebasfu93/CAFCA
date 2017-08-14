@@ -20,14 +20,11 @@ unsigned int *x_sys, *y_sys, *z_sys, *vx_sys, *vy_sys, *vz_sys, *rvdw_sys;
 
 FLOAT *rspace, *vspace;
 
-fftw_complex *rho_out, *rho_in, *pot;
-fftw_plan rho_plan;
-FLOAT kx, ky, kz, Kx, Ky, Kz;
+fftw_complex *pot;
 
 FLOAT *accx, *accy, *accz;
 
 FLOAT dt=1;
-int x_new, y_new, z_new, vx_new, vy_new, vz_new;
 
 int N_steps=10;
 
@@ -38,10 +35,10 @@ int main(int argc, char const *argv[]){
   init_system();
 
   //for(i=0;i<N_steps;i++){
-  sys2pos(x_sys, y_sys, z_sys, q_sys);
+  rspace=sys2pos(x_sys, y_sys, z_sys, q_sys);
   print_rspace(rspace);
-  fstep(rspace);
-  acceleration(pot);
+  pot = fstep(rspace);
+  acceleration(pot, accx, accy, accz);
   update(x_sys, y_sys, z_sys, vx_sys, vy_sys, vz_sys, accx, accy, accz);
   //}
   //print_atoms(coorx, coory, coorz, velx, vely, velz, charges, names, types);
@@ -69,8 +66,6 @@ void assign_cons(){
   rspace=malloc(sizeof(FLOAT)*Nxtot); checkfloat(rspace); initfloat(rspace, Nxtot);
   vspace=malloc(sizeof(FLOAT)*Nvtot); checkfloat(vspace); initfloat(vspace, Nvtot);
 
-  rho_in=malloc(sizeof(fftw_complex)*Nxtot); checkcomplex(rho_in);
-  rho_out=malloc(sizeof(fftw_complex)*Nxtot); checkcomplex(rho_out);
   pot=malloc(sizeof(fftw_complex)*Nxtot); checkcomplex(pot);
 
   accx=malloc(sizeof(FLOAT)*Nxtot); checkfloat(accx);
@@ -152,18 +147,32 @@ void init_system(){
     vx_sys[i]=0; vy_sys[i]=0; vz_sys[i]=0;
   }
 }
-void sys2pos(unsigned int *x_sis, unsigned int *y_sis, unsigned int *z_sis, FLOAT *q_sis){
+FLOAT *sys2pos(unsigned int *x_sis, unsigned int *y_sis, unsigned int *z_sis, FLOAT *q_sis){
+  FLOAT *real_space;
+  real_space=malloc(sizeof(FLOAT)*Nxtot); checkfloat(real_space); initfloat(real_space, Nxtot);
+
   for(i=0;i<Nsys;i++){
-    rspace[ndx(x_sis[i], y_sis[i], z_sis[i])]+=q_sis[i];
+    real_space[ndx(x_sis[i], y_sis[i], z_sis[i])]+=q_sis[i];
   }
+  return real_space;
 }
-void sys2vel(unsigned int *vx_sis, unsigned int *vy_sis, unsigned int *vz_sis, FLOAT *q_sis){
+FLOAT *sys2vel(unsigned int *vx_sis, unsigned int *vy_sis, unsigned int *vz_sis, FLOAT *q_sis){
+  FLOAT *vel_space;
+  vel_space=malloc(sizeof(FLOAT)*Nvtot); checkfloat(vel_space); initfloat(vel_space, Nvtot);
+
   for(i=0;i<Nsys;i++){
-    vspace[ndx(vx_sis[i], vy_sis[i], vz_sis[i])]+=q_sys[i];
+    vel_space[ndx(vx_sis[i], vy_sis[i], vz_sis[i])]+=q_sys[i];
   }
+  return vel_space;
 }
-void fstep(FLOAT *real_space){
-  initcomplex(rho_in, Nxtot); initcomplex(rho_out, Nxtot); initcomplex(pot, Nxtot);
+fftw_complex *fstep(FLOAT *real_space){
+  fftw_plan rho_plan;
+  FLOAT kx, ky, kz, Kx, Ky, Kz;
+  fftw_complex *potential, *rho_out, *rho_in;
+
+  potential=malloc(sizeof(fftw_complex)*Nxtot); checkcomplex(potential); initcomplex(potential, Nxtot);
+  rho_in=malloc(sizeof(fftw_complex)*Nxtot); checkcomplex(rho_in); initcomplex(rho_in, Nxtot);
+  rho_out=malloc(sizeof(fftw_complex)*Nxtot); checkcomplex(rho_out); initcomplex(rho_out, Nxtot);
 
   for(i=0;i<Nxtot;i++){
     rho_in[i]=real_space[i];
@@ -186,17 +195,18 @@ void fstep(FLOAT *real_space){
     }
   }
 
-  rho_plan = fftw_plan_dft_3d(Lx, Ly, Lz, rho_out, pot, -1, FFTW_ESTIMATE);
+  rho_plan = fftw_plan_dft_3d(Lx, Ly, Lz, rho_out, potential, -1, FFTW_ESTIMATE);
   fftw_execute(rho_plan);
   fftw_destroy_plan(rho_plan);
 
   for(i=0;i<Nxtot;i++){
-    pot[i]=pot[i]/Nxtot;
+    potential[i]=potential[i]/Nxtot;
   }
+  return potential;
 
 }
-void acceleration(fftw_complex *potential){
-  initfloat(accx, Nxtot); initfloat(accy, Nxtot); initfloat(accz, Nxtot);
+void acceleration(fftw_complex *potential, FLOAT *acex, FLOAT *acey, FLOAT *acez){
+  initfloat(acex, Nxtot); initfloat(acey, Nxtot); initfloat(acez, Nxtot);
 
   int i1, j1, k1;
   for(i=0;i<Lx;i++){
@@ -220,14 +230,15 @@ void acceleration(fftw_complex *potential){
         else{
           k1=k;
         }
-        accx[ndx(i,j,k)]=-(potential[ndx((i+1)%Lx,j,k)]-potential[ndx(i1,j,k)])/2;
-        accy[ndx(i,j,k)]=-(potential[ndx(i,(j+1)%Ly,k)]-potential[ndx(i,j1,k)])/2;
-        accz[ndx(i,j,k)]=-(potential[ndx(i,j,(k+1)%Lz)]-potential[ndx(i,j,k1)])/2;
+        acex[ndx(i,j,k)]=-(potential[ndx((i+1)%Lx,j,k)]-potential[ndx(i1,j,k)])/2;
+        acey[ndx(i,j,k)]=-(potential[ndx(i,(j+1)%Ly,k)]-potential[ndx(i,j1,k)])/2;
+        acez[ndx(i,j,k)]=-(potential[ndx(i,j,(k+1)%Lz)]-potential[ndx(i,j,k1)])/2;
       }
     }
   }
 }
 void update(unsigned int *x_sis, unsigned int *y_sis, unsigned int *z_sis, unsigned int *vx_sis, unsigned int *vy_sis, unsigned int *vz_sis, FLOAT *acex, FLOAT *acey, FLOAT *acez){
+  int x_new, y_new, z_new, vx_new, vy_new, vz_new;
 
   for(i=0;i<Nsys;i++){
     vx_new=vx_sis[i] + (int) dt*acex[ndx(x_sis[i], y_sis[i], z_sis[i])];
