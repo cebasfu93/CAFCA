@@ -6,7 +6,7 @@
 #include "funciones.c"
 
 //-------------------------Variables globales-------------------------//
-int i,j,k,l, N_atoms, Nx, Ny, Nz, Nvx, Nvy, Nvz, useless, Nxtot, Nvtot, Nsys, gi;
+int N_atoms, Nx, Ny, Nz, Nvx, Nvy, Nvz, useless, Nxtot, Nvtot, Nsys, gi;
 int Lx, Ly, Lz;
 int Vx, Vy, Vz;
 
@@ -76,6 +76,7 @@ void assign_cons(){
   accz=malloc(sizeof(FLOAT)*Nxtot); checkfloat(accz);
 }
 void init_molecule(){
+  int i;
   char name_temp[5], type_temp[5], el_temp[3];
   const char *names[N_atoms], *types[N_atoms], *elements[N_atoms];
 
@@ -102,6 +103,7 @@ void init_molecule(){
   fclose(atoms_file);
 }
 void init_system(){
+  int i,j,k,l;
   Nsys=0;
   for(i=0;i<N_atoms;i++){
     Nsys+=N_elec[i];
@@ -152,6 +154,7 @@ void init_system(){
 }
 
 FLOAT *sys2pos(unsigned int *x_sis, unsigned int *y_sis, unsigned int *z_sis, FLOAT *q_sis){
+  int i;
   FLOAT *real_space;
   real_space=malloc(sizeof(FLOAT)*Nxtot); checkfloat(real_space); initfloat(real_space, Nxtot);
 
@@ -161,6 +164,7 @@ FLOAT *sys2pos(unsigned int *x_sis, unsigned int *y_sis, unsigned int *z_sis, FL
   return real_space;
 }
 FLOAT *sys2vel(unsigned int *vx_sis, unsigned int *vy_sis, unsigned int *vz_sis, FLOAT *q_sis){
+  int i;
   FLOAT *vel_space;
   vel_space=malloc(sizeof(FLOAT)*Nvtot); checkfloat(vel_space); initfloat(vel_space, Nvtot);
 
@@ -170,6 +174,7 @@ FLOAT *sys2vel(unsigned int *vx_sis, unsigned int *vy_sis, unsigned int *vz_sis,
   return vel_space;
 }
 FLOAT *fstep(FLOAT *real_space){
+  int i,j,k;
   fftw_plan rho_plan;
   FLOAT kx, ky, kz, Kx, Ky, Kz;
   fftw_complex *rho_fin, *rho_out, *rho_in;
@@ -214,6 +219,7 @@ FLOAT *fstep(FLOAT *real_space){
 
 }
 void acceleration(FLOAT *potential, FLOAT *acex, FLOAT *acey, FLOAT *acez){
+  int i,j,k;
   initfloat(acex, Nxtot); initfloat(acey, Nxtot); initfloat(acez, Nxtot);
 
   int i1, j1, k1;
@@ -246,8 +252,8 @@ void acceleration(FLOAT *potential, FLOAT *acex, FLOAT *acey, FLOAT *acez){
   }
 }
 void update(unsigned int *x_sis, unsigned int *y_sis, unsigned int *z_sis, unsigned int *vx_sis, unsigned int *vy_sis, unsigned int *vz_sis, FLOAT *acex, FLOAT *acey, FLOAT *acez){
+  int i;
   int x_new, y_new, z_new, vx_new, vy_new, vz_new;
-
   for(i=N_atoms;i<Nsys;i++){
     vx_new=vx_sis[i] + (int) dt*acex[ndx(x_sis[i], y_sis[i], z_sis[i])];
     vy_new=vy_sis[i] + (int) dt*acey[ndx(x_sis[i], y_sis[i], z_sis[i])];
@@ -310,6 +316,7 @@ void print_cons(){
   fclose(cons_file);
 }
 void print_rspace(FLOAT *real_space){
+  int i,j,k;
   FILE *rspace_file;
   rspace_file=fopen("rspace.outc", "a");
 
@@ -361,6 +368,7 @@ void print_all_dens(FLOAT *real_space){
   print_dens(real_space, 'z');
 }
 void print_dens(FLOAT *real_space, char dir){
+  int i,j,k;
   FLOAT sum;
   if(dir=='x'){
     FILE *densx_file;
@@ -420,6 +428,7 @@ void print_all_pot(FLOAT *potential){
   print_pot(potential, 'z');
 }
 void print_pot(FLOAT *potential, char dir){
+  int i,j,k;
   FLOAT sum;
   if(dir=='x'){
     FILE *potx_file;
@@ -479,6 +488,7 @@ void print_all_acc(FLOAT *acex, FLOAT *acey, FLOAT *acez){
   print_acc(acez, 'z');
 }
 void print_acc(FLOAT *ace, char dir){
+  int i,j,k;
   FLOAT sum;
   if(dir=='x'){
     FILE *accx_file;
