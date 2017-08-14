@@ -206,7 +206,7 @@ FLOAT *fstep(FLOAT *real_space){
   fftw_destroy_plan(rho_plan);
 
   for(i=0;i<Nxtot;i++){
-    potential[i]= (FLOAT) rho_fin[i]/Nxtot;
+    potential[i]= (FLOAT) -rho_fin[i]/Nxtot;
   }
 
   return potential;
