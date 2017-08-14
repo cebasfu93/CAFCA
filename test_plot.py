@@ -26,16 +26,20 @@ Lx=cons[0]
 Ly=cons[1]
 Lz=cons[2]
 N_steps=cons[3]
+N_points=cons[4:]
+n1, n2 = 0,0
 x,y,z= np.linspace(0,Lx-1,Lx), np.linspace(0,Ly-1,Ly), np.linspace(0,Lz-1,Lz)
 
 os.mkdir("temp")
 
 with imageio.get_writer('./CAFCA.gif', mode='I') as writer:
     for i in range(N_steps):
-        nx=rspace[i*N_steps:(i+1)*N_steps,0]
-        ny=rspace[i*N_steps:(i+1)*N_steps,1]
-        nz=rspace[i*N_steps:(i+1)*N_steps,2]
-        qs=rspace[i*N_steps:(i+1)*N_steps,3]
+        n1=n2
+        n2+=N_points[i+1]
+        nx=rspace[n1:n2,0]
+        ny=rspace[n1:n2,1]
+        nz=rspace[n1:n2,2]
+        qs=rspace[n1:n2,3]
 
         fig=plt.figure(figsize=(24,12))
         gs=gridspec.GridSpec(3,6)

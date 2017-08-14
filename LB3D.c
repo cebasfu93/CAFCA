@@ -306,6 +306,7 @@ void print_cons(){
   cons_file=fopen("constants.outc", "a");
   fprintf(cons_file, "%d \n%d \n%d \n", Lx, Ly, Lz);
   fprintf(cons_file, "%d \n", N_steps);
+  fprintf(cons_file, "0 \n");
   fclose(cons_file);
 }
 void print_rspace(FLOAT *real_space){
@@ -339,7 +340,7 @@ void print_rspace(FLOAT *real_space){
           }
           if(count<6 && count>0){
             fprintf(rspace_file, "%d %d %d %f \n", i, j, k, real_space[ndx(i,j,k)]);
-            points+=1
+            points+=1;
           }
         }
       }
