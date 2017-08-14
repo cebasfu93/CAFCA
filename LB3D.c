@@ -36,9 +36,6 @@ int main(int argc, char const *argv[]){
   rspace=sys2pos(x_sys, y_sys, z_sys, q_sys);
   print_rspace(rspace);
   pot = fstep(rspace);
-  for(i=0;i<Nxtot;i++){
-    printf("%f \n", pot[i]);
-  }
 
   print_all_pot(pot);
 
@@ -186,6 +183,7 @@ FLOAT *fstep(FLOAT *real_space){
   for(i=0;i<Nxtot;i++){
     rho_in[i]=real_space[i];
   }
+
   rho_plan = fftw_plan_dft_3d(Lx, Ly, Lz, rho_in, rho_out, 1, FFTW_ESTIMATE);
   fftw_execute(rho_plan);
   fftw_destroy_plan(rho_plan);
@@ -199,7 +197,7 @@ FLOAT *fstep(FLOAT *real_space){
       for(k=0;k<Lz;k++){
         kz=2*pi/Lz*(FLOAT)k;
         Kz=kz*sinc(0.5*kz);
-        rho_out[i]=-rho_out[i]/(pow(Kx,2)+pow(Ky,2)+pow(Kz,2));
+        rho_fin[i]=-rho_out[i]/(pow(Kx,2)+pow(Ky,2)+pow(Kz,2));
       }
     }
   }
@@ -211,6 +209,7 @@ FLOAT *fstep(FLOAT *real_space){
   for(i=0;i<Nxtot;i++){
     potential[i]= (FLOAT) rho_fin[i]/Nxtot;
   }
+
   return potential;
 
 }
