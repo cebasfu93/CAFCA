@@ -33,19 +33,17 @@ int main(int argc, char const *argv[]){
   assign_cons();
   init_molecule();
   init_system();
+
+
+  //for(i=0;i<N_steps;i++){
   rspace=sys2pos(x_sys, y_sys, z_sys, q_sys);
   print_rspace(rspace);
+  print_all_dens(rspace);
   pot = fstep(rspace);
-
   print_all_pot(pot);
-
-  /*for(i=0;i<N_steps;i++){
-    rspace=sys2pos(x_sys, y_sys, z_sys, q_sys);
-    print_rspace(rspace);
-    pot = fstep(rspace);
-    acceleration(pot, accx, accy, accz);
-    update(x_sys, y_sys, z_sys, vx_sys, vy_sys, vz_sys, accx, accy, accz);
-  }*/
+  acceleration(pot, accx, accy, accz);
+  print_all_acc(accx, accy, accz);
+  //}
 
   return 0;
 }
@@ -151,6 +149,7 @@ void init_system(){
     vx_sys[i]=0; vy_sys[i]=0; vz_sys[i]=0;
   }
 }
+
 FLOAT *sys2pos(unsigned int *x_sis, unsigned int *y_sis, unsigned int *z_sis, FLOAT *q_sis){
   FLOAT *real_space;
   real_space=malloc(sizeof(FLOAT)*Nxtot); checkfloat(real_space); initfloat(real_space, Nxtot);
@@ -300,6 +299,7 @@ void update(unsigned int *x_sis, unsigned int *y_sis, unsigned int *z_sis, unsig
     vz_sis[i]=vz_new;
   }
 }
+
 void print_rspace(FLOAT *real_space){
   FILE *rspace_file;
   rspace_file=fopen("rspace.outc", "a");
@@ -348,8 +348,6 @@ void print_pot(FLOAT *potential, char dir){
     FILE *potx_file;
     potx_file=fopen("potx.outc", "a");
 
-    FLOAT *pot_res;
-    pot_res=malloc(sizeof(FLOAT)*Lx); checkfloat(pot_res); initfloat(pot_res, Lx);
     for(i=0;i<Lx;i++){
       sum=0;
       for(j=0;j<Ly;j++){
@@ -366,8 +364,6 @@ void print_pot(FLOAT *potential, char dir){
     FILE *poty_file;
     poty_file=fopen("poty.outc", "a");
 
-    FLOAT *pot_res;
-    pot_res=malloc(sizeof(FLOAT)*Ly); checkfloat(pot_res); initfloat(pot_res, Ly);
     for(i=0;i<Ly;i++){
       sum=0;
       for(j=0;j<Lz;j++){
@@ -384,8 +380,6 @@ void print_pot(FLOAT *potential, char dir){
     FILE *potz_file;
     potz_file=fopen("potz.outc", "a");
 
-    FLOAT *pot_res;
-    pot_res=malloc(sizeof(FLOAT)*Lz); checkfloat(pot_res); initfloat(pot_res, Lz);
     for(i=0;i<Lz;i++){
       sum=0;
       for(j=0;j<Lx;j++){
@@ -402,6 +396,125 @@ void print_pot(FLOAT *potential, char dir){
     exit(0);
   }
 }
+void print_all_acc(FLOAT *acex, FLOAT *acey, FLOAT *acez){
+  print_acc(acex, 'x');
+  print_acc(acey, 'y');
+  print_acc(acez, 'z');
+}
+void print_acc(FLOAT *ace, char dir){
+  FLOAT sum;
+  if(dir=='x'){
+    FILE *accx_file;
+    accx_file=fopen("accx.outc", "a");
+
+    for(i=0;i<Lx;i++){
+      sum=0;
+      for(j=0;j<Ly;j++){
+        for(k=0;k<Lz;k++){
+          sum+=ace[ndx(i,j,k)];
+        }
+      }
+      fprintf(accx_file, "%f \n", sum);
+    }
+    fclose(accx_file);
+  }
+
+  else if(dir=='y'){
+    FILE *accy_file;
+    accy_file=fopen("accy.outc", "a");
+
+    for(i=0;i<Ly;i++){
+      sum=0;
+      for(j=0;j<Lz;j++){
+        for(k=0;k<Lx;k++){
+          sum+=ace[ndx(k,i,j)];
+        }
+      }
+      fprintf(accy_file, "%f \n", sum);
+    }
+    fclose(accy_file);
+  }
+
+  else if(dir=='z'){
+    FILE *accz_file;
+    accz_file=fopen("accz.outc", "a");
+
+    for(i=0;i<Lz;i++){
+      sum=0;
+      for(j=0;j<Lx;j++){
+        for(k=0;k<Ly;k++){
+          sum+=ace[ndx(j,k,i)];
+        }
+      }
+      fprintf(accz_file, "%f \n", sum);
+    }
+    fclose(accz_file);
+  }
+  else{
+    printf("La direccion de la aceleracion que se quiere imprimir, no es valida \n");
+    exit(0);
+  }
+}
+void print_all_dens(FLOAT *real_space){
+  print_dens(real_space, 'x');
+  print_dens(real_space, 'y');
+  print_dens(real_space, 'z');
+}
+void print_dens(FLOAT *real_space, char dir){
+  FLOAT sum;
+  if(dir=='x'){
+    FILE *densx_file;
+    densx_file=fopen("densx.outc", "a");
+
+    for(i=0;i<Lx;i++){
+      sum=0;
+      for(j=0;j<Ly;j++){
+        for(k=0;k<Lz;k++){
+          sum+=real_space[ndx(i,j,k)];
+        }
+      }
+      fprintf(densx_file, "%f \n", sum);
+    }
+    fclose(densx_file);
+  }
+
+  else if(dir=='y'){
+    FILE *densy_file;
+    densy_file=fopen("densy.outc", "a");
+
+    for(i=0;i<Ly;i++){
+      sum=0;
+      for(j=0;j<Lz;j++){
+        for(k=0;k<Lx;k++){
+          sum+=real_space[ndx(k,i,j)];
+        }
+      }
+      fprintf(densy_file, "%f \n", sum);
+    }
+    fclose(densy_file);
+  }
+
+  else if(dir=='z'){
+    FILE *densz_file;
+    densz_file=fopen("densz.outc", "a");
+
+    for(i=0;i<Lz;i++){
+      sum=0;
+      for(j=0;j<Lx;j++){
+        for(k=0;k<Ly;k++){
+          sum+=real_space[ndx(j,k,i)];
+        }
+      }
+      fprintf(densz_file, "%f \n", sum);
+    }
+    fclose(densz_file);
+  }
+  else{
+    printf("La direccion de la densidad que se quiere imprimir, no es valida \n");
+    exit(0);
+  }
+}
+
 int ndx(int indi, int indj, int indk){
   return indi + Lx*(indj+Ly*indk);
 }

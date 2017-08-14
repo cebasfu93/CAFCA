@@ -23,6 +23,10 @@ void update(unsigned int *x_sis, unsigned int *y_sis, unsigned int *z_sis, unsig
 void print_rspace();
 void print_pot(FLOAT *potential, char dir);
 void print_all_pot(FLOAT *potential);
+void print_acc(FLOAT *ace, char dir);
+void print_all_acc(FLOAT *acex, FLOAT *acey, FLOAT *acez);
+void print_dens(FLOAT *real_space, char dir);
+void print_all_dens(FLOAT *real_space);
 
 int ndx(int indi, int indj, int indk);
 int ndv(int indi, int indj, int indk);
