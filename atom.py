@@ -10,7 +10,7 @@ radii=np.array([1.10, 1.43,
 2.63, 2.23, 2.05, 1.96, 1.79, 1.71, 1.65, 1.58,
 2.77, 2.42, 2.40, 2.26, 2.14, 2.06, 2.05, 1.94,
 3.02, 2.78, 2.62, 2.44, 2.27, 2.23, 2.25, 2.27, 2.25, 2.23, 2.27, 2.24, 2.41, 2.32, 2.25, 2.18, 2.10, 2.07])
-radii=np.round(radii/dx,0).astype(int)
+radii=np.round(radii/(10*dx),0).astype(int)
 
 #Import archivo con numero de electrones para radios dados
 file_elec=np.genfromtxt('SphericalGrid/N_elec.outpy').astype(int)

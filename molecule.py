@@ -19,7 +19,7 @@ Lx, Ly, Lz, Vx, Vy, Vz = 0, 0, 0, 0, 0, 0
 #Convierte coordenadas a enteros poniendo el minimo en cero
 def int_coordinates(at_info_split):
     temp_array=np.array(at_info_split, dtype='string')
-    temp_array=temp_array[:,2:5].astype(float)
+    temp_array=temp_array[:,2:5].astype(float)/10
     for i in range(3):
         min_temp=np.min(temp_array[:,i])
         temp_array[:,i]=temp_array[:,i]-(min_temp-init.distx)
@@ -91,6 +91,9 @@ def save_cons():
     cons.write(str(Vy) + '\n')
     cons.write(str(Vz) + '\n')
     cons.write(str(N_atoms) + '\n')
+    cons.write(str(Lx*init.dx) + '\n')
+    cons.write(str(Ly*init.dx) + '\n')
+    cons.write(str(Ly*init.dx) + '\n')
     cons.close()
 
 molecule=init_molecule(inp_file)
