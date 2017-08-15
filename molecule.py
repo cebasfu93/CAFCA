@@ -94,6 +94,7 @@ def save_cons():
     cons.write(str(Lx*init.dx) + '\n')
     cons.write(str(Ly*init.dx) + '\n')
     cons.write(str(Ly*init.dx) + '\n')
+    cons.write(str(init.dx) + '\n')
     cons.close()
 
 molecule=init_molecule(inp_file)

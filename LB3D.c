@@ -9,6 +9,7 @@
 int N_atoms, Nx, Ny, Nz, Nvx, Nvy, Nvz, useless, Nxtot, Nvtot, Nsys, gi;
 int Lx, Ly, Lz;
 int Vx, Vy, Vz;
+FLOAT Dx, Dy, Dz, dx;
 
 FILE *atoms_file;
 
@@ -24,9 +25,9 @@ FLOAT *pot;
 
 FLOAT *accx, *accy, *accz;
 
-FLOAT dt=10;
+FLOAT dt=1;
 
-int N_steps=2;
+int N_steps=1;
 
 //-------------------------Main-------------------------//
 int main(int argc, char const *argv[]){
@@ -62,6 +63,10 @@ void assign_cons(){
   useless=fscanf(cons_file, "%d", &Vy);
   useless=fscanf(cons_file, "%d", &Vz);
   useless=fscanf(cons_file, "%d", &N_atoms);
+  useless=fscanf(cons_file, "%f", &Dx);
+  useless=fscanf(cons_file, "%f", &Dy);
+  useless=fscanf(cons_file, "%f", &Dz);
+  useless=fscanf(cons_file, "%f", &dx);
 
   fclose(cons_file);
 
@@ -194,17 +199,20 @@ FLOAT *fstep(FLOAT *real_space){
   fftw_destroy_plan(rho_plan);
 
   for(i=0;i<Lx;i++){
-    kx=2*pi/Lx*(FLOAT)i;
-    Kx=kx*sinc(0.5*kx);
+    printf("%d %f %f \n", creal(rho_out[i]), cimag(rho_out[i]));
+    kx=2*pi/Dx*(FLOAT)i;
+    Kx=kx*sinc(0.5*kx*dx);
     for(j=0;j<Ly;j++){
-      ky=2*pi/Ly*(FLOAT)j;
-      Ky=ky*sinc(0.5*ky);
+      ky=2*pi/Dy*(FLOAT)j;
+      Ky=ky*sinc(0.5*ky*dx);
       for(k=0;k<Lz;k++){
-        kz=2*pi/Lz*(FLOAT)k;
-        Kz=kz*sinc(0.5*kz);
-        rho_fin[i]=-rho_out[i]/(pow(Kx,2)+pow(Ky,2)+pow(Kz,2));
+        kz=2*pi/Dz*(FLOAT)k;
+        Kz=kz*sinc(0.5*kz*dx);
+        rho_out[i]=-rho_out[i]/(pow(Kx,2)+pow(Ky,2)+pow(Kz,2));
       }
     }
+    
+    //printf("%d %f %f \n", creal(rho_out[i]), cimag(rho_out[i]));
   }
 
   rho_plan = fftw_plan_dft_3d(Lx, Ly, Lz, rho_out, rho_fin, -1, FFTW_ESTIMATE);
