@@ -199,21 +199,20 @@ FLOAT *fstep(FLOAT *real_space){
   fftw_destroy_plan(rho_plan);
 
   for(i=0;i<Lx;i++){
-    printf("%d %f %f \n", creal(rho_out[i]), cimag(rho_out[i]));
-    kx=2*pi/Dx*(FLOAT)i;
+    kx=2*pi/Dx*((FLOAT)i+0.5);
     Kx=kx*sinc(0.5*kx*dx);
     for(j=0;j<Ly;j++){
-      ky=2*pi/Dy*(FLOAT)j;
+      ky=2*pi/Dy*((FLOAT)j+0.5);
       Ky=ky*sinc(0.5*ky*dx);
       for(k=0;k<Lz;k++){
-        kz=2*pi/Dz*(FLOAT)k;
+        kz=2*pi/Dz*((FLOAT)k+0.5);
         Kz=kz*sinc(0.5*kz*dx);
-        rho_out[i]=-rho_out[i]/(pow(Kx,2)+pow(Ky,2)+pow(Kz,2));
+        rho_out[ndx(i,j,k)]=-rho_out[ndx(i,j,k)]/(pow(Kx,2)+pow(Ky,2)+pow(Kz,2));
+        printf("%d %d %d %f %f \n", i, j, k, creal(rho_out[ndx(i,j,k)]),  creal(rho_out[ndx(i,j,k)]));
       }
     }
-    
-    //printf("%d %f %f \n", creal(rho_out[i]), cimag(rho_out[i]));
   }
+  //rho_out[0]=0.0;
 
   rho_plan = fftw_plan_dft_3d(Lx, Ly, Lz, rho_out, rho_fin, -1, FFTW_ESTIMATE);
   fftw_execute(rho_plan);
