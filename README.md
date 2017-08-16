@@ -8,4 +8,4 @@ Note to myself:
 4. Efficiency can be improved by calculating the acceleration only where there is charge in the cell.
 5. If the maximum velocity is reached, the previous one is kept. Bug.
 6. The molecule initialization puts the atoms in a grid where each cube corresponds to the coordinates of one vertex when it should correspond to the coordinates of the center of the cube
-
+7. The input mol2 file must have atoms names with the atom symbol followed by at least a number
