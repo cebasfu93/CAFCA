@@ -7,4 +7,5 @@ Note to myself:
 3. When placing the electrons around the nuclei, if it is placed where a nucleus resides, the charge of the nucleus will dicrease. Bug.
 4. Efficiency can be improved by calculating the acceleration only where there is charge in the cell.
 5. If the maximum velocity is reached, the previous one is kept. Bug.
+6. The molecule initialization puts the atoms in a grid where each cube corresponds to the coordinates of one vertex when it should correspond to the coordinates of the center of the cube
 
